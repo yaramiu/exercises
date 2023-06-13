@@ -32,12 +32,16 @@ const Statistics = ({ feedback }) => {
   else
     return (
       <>
-        <StatisticLine text={goodOption} value={goodCount} />
-        <StatisticLine text={neutralOption} value={neutralCount} />
-        <StatisticLine text={badOption} value={badCount} />
-        <StatisticLine text={"all"} value={totalCount} />
-        <StatisticLine text={"average"} value={averageScore} />
-        <StatisticLine text={"positive"} value={percentGood} />
+        <table>
+          <tbody>
+            <StatisticLine text={goodOption} value={goodCount} />
+            <StatisticLine text={neutralOption} value={neutralCount} />
+            <StatisticLine text={badOption} value={badCount} />
+            <StatisticLine text={"all"} value={totalCount} />
+            <StatisticLine text={"average"} value={averageScore} />
+            <StatisticLine text={"positive"} value={percentGood} />
+          </tbody>
+        </table>
       </>
     );
 };
@@ -45,15 +49,29 @@ const Statistics = ({ feedback }) => {
 const StatisticLine = ({ text, value }) => {
   if (text === "positive")
     return (
-      <p>
-        {text} {value * 100} %
-      </p>
+      <>
+        <tr>
+          <td>
+            <p>{text}</p>
+          </td>
+          <td>
+            <p>{value * 100} %</p>
+          </td>
+        </tr>
+      </>
     );
   else
     return (
-      <p>
-        {text} {value}
-      </p>
+      <>
+        <tr>
+          <td>
+            <p>{text}</p>
+          </td>
+          <td>
+            <p>{value}</p>
+          </td>
+        </tr>
+      </>
     );
 };
 
