@@ -7,20 +7,53 @@ const Button = ({ handleClick, text }) => (
 );
 
 const Display = ({ feedback }) => {
+  const goodOption = feedback.options[0];
+  const goodCount = feedback.counts[0];
+  const neutralOption = feedback.options[1];
+  const neutralCount = feedback.counts[1];
+  const badOption = feedback.options[2];
+  const badCount = feedback.counts[2];
+
+  let totalCount = 0;
+  feedback.counts.forEach((count) => (totalCount += count));
+
+  const calculateAverage = () => {
+    const GOOD_SCORE = 1;
+    const BAD_SCORE = -1;
+    const score = goodCount * GOOD_SCORE + badCount * BAD_SCORE;
+    const averageScore = score / totalCount;
+    return averageScore;
+  };
+  const averageScore = calculateAverage();
+
+  const percentGood = goodCount / totalCount;
+
   return (
     <>
-      <Feedback option={feedback.options[0]} count={feedback.counts[0]} />
-      <Feedback option={feedback.options[1]} count={feedback.counts[1]} />
-      <Feedback option={feedback.options[2]} count={feedback.counts[2]} />
+      <Feedback option={goodOption} count={goodCount} />
+      <Feedback option={neutralOption} count={neutralCount} />
+      <Feedback option={badOption} count={badCount} />
+      <Feedback option={"all"} count={totalCount} />
+      <Feedback option={"average"} count={averageScore} />
+      <Feedback option={"positive"} count={percentGood} />
     </>
   );
 };
 
-const Feedback = ({ option, count }) => (
-  <p>
-    {option} {count}
-  </p>
-);
+const Feedback = ({ option, count }) => {
+  if (option === "positive") {
+    return (
+      <p>
+        {option} {count * 100} %
+      </p>
+    );
+  }
+  return (
+    <p>
+      {option} {count}
+    </p>
+  );
+};
 
 const App = () => {
   // save clicks of each button to its own state
