@@ -28,31 +28,33 @@ const Statistics = ({ feedback }) => {
 
   const percentGood = goodCount / totalCount;
 
-  return (
-    <>
-      <Statistic option={goodOption} count={goodCount} />
-      <Statistic option={neutralOption} count={neutralCount} />
-      <Statistic option={badOption} count={badCount} />
-      <Statistic option={"all"} count={totalCount} />
-      <Statistic option={"average"} count={averageScore} />
-      <Statistic option={"positive"} count={percentGood} />
-    </>
-  );
+  if (totalCount === 0) return <p>No feedback given</p>;
+  else
+    return (
+      <>
+        <Statistic option={goodOption} count={goodCount} />
+        <Statistic option={neutralOption} count={neutralCount} />
+        <Statistic option={badOption} count={badCount} />
+        <Statistic option={"all"} count={totalCount} />
+        <Statistic option={"average"} count={averageScore} />
+        <Statistic option={"positive"} count={percentGood} />
+      </>
+    );
 };
 
 const Statistic = ({ option, count }) => {
-  if (option === "positive") {
+  if (option === "positive")
     return (
       <p>
         {option} {count * 100} %
       </p>
     );
-  }
-  return (
-    <p>
-      {option} {count}
-    </p>
-  );
+  else
+    return (
+      <p>
+        {option} {count}
+      </p>
+    );
 };
 
 const App = () => {
