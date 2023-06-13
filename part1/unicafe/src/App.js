@@ -32,27 +32,27 @@ const Statistics = ({ feedback }) => {
   else
     return (
       <>
-        <Statistic option={goodOption} count={goodCount} />
-        <Statistic option={neutralOption} count={neutralCount} />
-        <Statistic option={badOption} count={badCount} />
-        <Statistic option={"all"} count={totalCount} />
-        <Statistic option={"average"} count={averageScore} />
-        <Statistic option={"positive"} count={percentGood} />
+        <StatisticLine text={goodOption} value={goodCount} />
+        <StatisticLine text={neutralOption} value={neutralCount} />
+        <StatisticLine text={badOption} value={badCount} />
+        <StatisticLine text={"all"} value={totalCount} />
+        <StatisticLine text={"average"} value={averageScore} />
+        <StatisticLine text={"positive"} value={percentGood} />
       </>
     );
 };
 
-const Statistic = ({ option, count }) => {
-  if (option === "positive")
+const StatisticLine = ({ text, value }) => {
+  if (text === "positive")
     return (
       <p>
-        {option} {count * 100} %
+        {text} {value * 100} %
       </p>
     );
   else
     return (
       <p>
-        {option} {count}
+        {text} {value}
       </p>
     );
 };
