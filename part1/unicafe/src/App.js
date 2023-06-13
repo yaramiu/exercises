@@ -6,7 +6,7 @@ const Button = ({ handleClick, text }) => (
   <button onClick={() => handleClick(text)}>{text}</button>
 );
 
-const Display = ({ feedback }) => {
+const Statistics = ({ feedback }) => {
   const goodOption = feedback.options[0];
   const goodCount = feedback.counts[0];
   const neutralOption = feedback.options[1];
@@ -30,17 +30,17 @@ const Display = ({ feedback }) => {
 
   return (
     <>
-      <Feedback option={goodOption} count={goodCount} />
-      <Feedback option={neutralOption} count={neutralCount} />
-      <Feedback option={badOption} count={badCount} />
-      <Feedback option={"all"} count={totalCount} />
-      <Feedback option={"average"} count={averageScore} />
-      <Feedback option={"positive"} count={percentGood} />
+      <Statistic option={goodOption} count={goodCount} />
+      <Statistic option={neutralOption} count={neutralCount} />
+      <Statistic option={badOption} count={badCount} />
+      <Statistic option={"all"} count={totalCount} />
+      <Statistic option={"average"} count={averageScore} />
+      <Statistic option={"positive"} count={percentGood} />
     </>
   );
 };
 
-const Feedback = ({ option, count }) => {
+const Statistic = ({ option, count }) => {
   if (option === "positive") {
     return (
       <p>
@@ -78,7 +78,7 @@ const App = () => {
       <Button handleClick={handleClick} text={"neutral"} />
       <Button handleClick={handleClick} text={"bad"} />
       <Header title={"statistics"}></Header>
-      <Display feedback={feedback} />
+      <Statistics feedback={feedback} />
     </div>
   );
 };
