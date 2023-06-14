@@ -4,7 +4,7 @@ import Content from "./Content";
 import Total from "./Total";
 import { Fragment } from "react";
 
-const Courses = ({ courses }) => {
+const Course = ({ courses }) => {
   return (
     <>
       <Header title={"Web development curriculum"} />
@@ -21,4 +21,4 @@ const Courses = ({ courses }) => {
   );
 };
 
-export default Courses;
+export default Course;
