@@ -9,6 +9,24 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
+
+    const checkNameExists = () => {
+      let isExistingName = false;
+      persons.forEach((person) => {
+        if (person.name.toLowerCase() === newName.toLowerCase()) {
+          isExistingName = true;
+        }
+      });
+      return isExistingName;
+    };
+
+    const isExistingName = checkNameExists();
+    if (isExistingName) {
+      alert(`${newName} is already added to phonebook`);
+      setNewName("");
+      return;
+    }
+
     const person = {
       name: newName,
     };
