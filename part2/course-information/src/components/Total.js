@@ -1,10 +1,7 @@
 const Total = ({ parts }) => {
-  let totalExercises = 0;
-  parts.forEach((part) => (totalExercises += part.exercises));
+  const total = parts.reduce((total, part) => total + part.exercises, 0);
 
-  return (
-    <p style={{ fontWeight: "bold" }}>total of {totalExercises} exercises</p>
-  );
+  return <p style={{ fontWeight: "bold" }}>total of {total} exercises</p>;
 };
 
 export default Total;
