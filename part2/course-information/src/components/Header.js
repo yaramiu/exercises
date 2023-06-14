@@ -1,3 +1,3 @@
-const Header = ({ title }) => <h1>{title}</h1>;
+const Header = ({ title }) => <h2>{title}</h2>;
 
 export default Header;
