@@ -22,7 +22,7 @@ const App = () => {
 
   const handleNumberChange = (event) => setNewNumber(event.target.value);
 
-  const addPerson = (event) => {
+  const addPerson = async (event) => {
     event.preventDefault();
 
     const checkNameExists = () => {
@@ -45,7 +45,9 @@ const App = () => {
       name: newName,
       number: newNumber,
     };
-    setPersons(persons.concat(person));
+
+    const response = await axios.post("http://localhost:3001/persons", person);
+    setPersons(persons.concat(response.data));
 
     resetInputFields();
   };
