@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 
+import "./index.css";
+
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 
 import personService from "./services/person";
 
@@ -11,6 +14,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [search, setSearch] = useState("");
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     async function getServerData() {
@@ -64,6 +68,9 @@ const App = () => {
               person.name !== newName ? person : updatedPerson
             )
           );
+          updateMessage(
+            `Updated ${updatedPerson.name}'s number to ${updatedPerson.number}`
+          );
         } catch (error) {
           console.error(error);
         }
@@ -75,11 +82,17 @@ const App = () => {
     try {
       const createdPerson = await personService.create(person);
       setPersons(persons.concat(createdPerson));
+      updateMessage(`Added ${createdPerson.name}`);
     } catch (error) {
       console.error(error);
     }
 
     resetInputFields();
+  };
+
+  const updateMessage = (message) => {
+    setMessage(message);
+    setTimeout(() => setMessage(null), 5000);
   };
 
   const resetInputFields = () => {
@@ -118,6 +131,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter
         searchInputHandler={handleSearchChange}
         searchInputValue={search}
