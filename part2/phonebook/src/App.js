@@ -15,6 +15,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState(null);
+  const [messageStatus, setMessageStatus] = useState(null);
 
   useEffect(() => {
     async function getServerData() {
@@ -40,25 +41,50 @@ const App = () => {
       number: newNumber,
     };
 
-    const checkNameExists = () => {
+    let savedPersons;
+    const checkNameExists = async () => {
       let isExistingName = false;
       persons.forEach((person) => {
         if (person.name.toLowerCase() === newName.toLowerCase())
           isExistingName = true;
       });
+
+      try {
+        savedPersons = await personService.getAll();
+        savedPersons.forEach((person) => {
+          if (person.name.toLowerCase() === newName.toLowerCase())
+            isExistingName = true;
+        });
+      } catch (error) {
+        console.error(error);
+      }
+
       return isExistingName;
     };
 
-    const isExistingName = checkNameExists();
+    let isExistingName;
+    try {
+      isExistingName = await checkNameExists();
+    } catch (error) {
+      console.error(error);
+    }
+
     if (isExistingName) {
       if (
         window.confirm(
           `${person.name} is already added to phonebook, replace the old number with a new one?`
         )
       ) {
-        const existingPerson = persons.find(
-          (person) => person.name === newName
-        );
+        let existingPerson = persons.find((person) => person.name === newName);
+
+        let isPersonInServer = false;
+        if (!existingPerson) {
+          isPersonInServer = true;
+          existingPerson = savedPersons.find(
+            (person) => person.name === newName
+          );
+        }
+
         const id = existingPerson.id;
 
         try {
@@ -68,13 +94,28 @@ const App = () => {
               person.name !== newName ? person : updatedPerson
             )
           );
+          if (isPersonInServer) {
+            setPersons(
+              savedPersons.map((person) =>
+                person.name !== newName ? person : updatedPerson
+              )
+            );
+          }
           updateMessage(
-            `Updated ${updatedPerson.name}'s number to ${updatedPerson.number}`
+            `Updated ${updatedPerson.name}'s number to ${updatedPerson.number}`,
+            "success"
           );
         } catch (error) {
           console.error(error);
+          updateMessage(
+            `Information of ${person.name} has already been removed from server`,
+            "failure"
+          );
+          setPersons(persons.filter((person) => person.id !== id));
         }
         resetInputFields();
+        return;
+      } else {
         return;
       }
     }
@@ -82,7 +123,7 @@ const App = () => {
     try {
       const createdPerson = await personService.create(person);
       setPersons(persons.concat(createdPerson));
-      updateMessage(`Added ${createdPerson.name}`);
+      updateMessage(`Added ${createdPerson.name}`, "success");
     } catch (error) {
       console.error(error);
     }
@@ -90,9 +131,13 @@ const App = () => {
     resetInputFields();
   };
 
-  const updateMessage = (message) => {
+  const updateMessage = (message, status) => {
     setMessage(message);
-    setTimeout(() => setMessage(null), 5000);
+    setMessageStatus(status);
+    setTimeout(() => {
+      setMessage(null);
+      setMessageStatus(null);
+    }, 5000);
   };
 
   const resetInputFields = () => {
@@ -106,10 +151,14 @@ const App = () => {
     if (window.confirm(`Delete ${name} ?`)) {
       try {
         await personService.remove(id);
-        setPersons(persons.filter((person) => person.id !== id));
       } catch (error) {
         console.error(error);
+        updateMessage(
+          `${name} has already been removed from server`,
+          "failure"
+        );
       }
+      setPersons(persons.filter((person) => person.id !== id));
     }
   };
 
@@ -131,7 +180,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={message} />
+      <Notification message={message} status={messageStatus} />
       <Filter
         searchInputHandler={handleSearchChange}
         searchInputValue={search}

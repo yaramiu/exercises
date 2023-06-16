@@ -1,9 +1,17 @@
-.notification.success {
-  color: green;
+.notification.success,
+.notification.failure {
   background: lightgrey;
   font-size: 20px;
   border-style: solid;
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
+}
+
+.notification.success {
+  color: green;
+}
+
+.notification.failure {
+  color: red;
 }
