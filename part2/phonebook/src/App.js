@@ -31,6 +31,11 @@ const App = () => {
   const addPerson = async (event) => {
     event.preventDefault();
 
+    const person = {
+      name: newName,
+      number: newNumber,
+    };
+
     const checkNameExists = () => {
       let isExistingName = false;
       persons.forEach((person) => {
@@ -42,15 +47,30 @@ const App = () => {
 
     const isExistingName = checkNameExists();
     if (isExistingName) {
-      alert(`${newName} is already added to phonebook`);
-      resetInputFields();
-      return;
-    }
+      if (
+        window.confirm(
+          `${person.name} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        const existingPerson = persons.find(
+          (person) => person.name === newName
+        );
+        const id = existingPerson.id;
 
-    const person = {
-      name: newName,
-      number: newNumber,
-    };
+        try {
+          const updatedPerson = await personService.update(person, id);
+          setPersons(
+            persons.map((person) =>
+              person.name !== newName ? person : updatedPerson
+            )
+          );
+        } catch (error) {
+          console.error(error);
+        }
+        resetInputFields();
+        return;
+      }
+    }
 
     try {
       const createdPerson = await personService.create(person);
