@@ -14,8 +14,12 @@ const App = () => {
 
   useEffect(() => {
     async function getServerData() {
-      const savedPersons = await personService.getAll();
-      setPersons(savedPersons);
+      try {
+        const savedPersons = await personService.getAll();
+        setPersons(savedPersons);
+      } catch (error) {
+        console.error(error);
+      }
     }
     getServerData();
   }, []);
@@ -48,8 +52,12 @@ const App = () => {
       number: newNumber,
     };
 
-    const createdPerson = await personService.create(person);
-    setPersons(persons.concat(createdPerson));
+    try {
+      const createdPerson = await personService.create(person);
+      setPersons(persons.concat(createdPerson));
+    } catch (error) {
+      console.error(error);
+    }
 
     resetInputFields();
   };
@@ -60,6 +68,17 @@ const App = () => {
   };
 
   const handleSearchChange = (event) => setSearch(event.target.value);
+
+  const deletePerson = async (name, id) => {
+    if (window.confirm(`Delete ${name} ?`)) {
+      try {
+        await personService.remove(id);
+        setPersons(persons.filter((person) => person.id !== id));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
 
   const filteredPersons =
     search.length === 0
@@ -92,7 +111,7 @@ const App = () => {
         numberInputValue={newNumber}
       />
       <h2>Numbers</h2>
-      <Persons persons={filteredPersons} />
+      <Persons persons={filteredPersons} contactButtonHandler={deletePerson} />
     </div>
   );
 };

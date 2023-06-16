@@ -1,6 +1,7 @@
-const Contact = ({ name, number }) => (
+const Contact = ({ name, number, buttonHandler, id }) => (
   <p>
-    {name} {number}
+    {name} {number}{" "}
+    <button onClick={() => buttonHandler(name, id)}>delete</button>
   </p>
 );
 
