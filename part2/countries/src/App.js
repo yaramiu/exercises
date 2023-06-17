@@ -7,6 +7,7 @@ import Search from "./components/Search";
 const App = () => {
   const [countries, setCountries] = useState([]);
   const [searchedCountries, setSearchedCountries] = useState([]);
+  const [weather, setWeather] = useState(null);
 
   useEffect(() => {
     async function getCountries() {
@@ -22,6 +23,25 @@ const App = () => {
     getCountries();
   }, []);
 
+  useEffect(() => {
+    async function getWeatherData(countryName) {
+      try {
+        const API_KEY = process.env.REACT_APP_API_KEY;
+        const response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?q=${countryName}&appid=${API_KEY}`
+        );
+        setWeather(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (searchedCountries.length === 1) {
+      const countryName = searchedCountries[0].name.common;
+      getWeatherData(countryName);
+    }
+  }, [searchedCountries]);
+
   const handleCountryChange = (event) => {
     if (event.target.value === "") {
       setSearchedCountries([]);
@@ -36,8 +56,8 @@ const App = () => {
     setSearchedCountries(filteredCountries);
   };
 
-  const showCountryView = (country) => {
-    setSearchedCountries(country);
+  const showCountryView = (countryName) => {
+    setSearchedCountries(countryName);
   };
 
   return (
@@ -46,6 +66,7 @@ const App = () => {
       <Countries
         countries={searchedCountries}
         handleCountryButton={showCountryView}
+        weather={weather}
       />
     </Fragment>
   );

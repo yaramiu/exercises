@@ -1,6 +1,7 @@
 import Country from "./Country";
+import Weather from "./Weather";
 
-const Countries = ({ countries, handleCountryButton }) => {
+const Countries = ({ countries, handleCountryButton, weather }) => {
   if (countries.length === 0) {
     return <div></div>;
   }
@@ -27,6 +28,7 @@ const Countries = ({ countries, handleCountryButton }) => {
     return (
       <div>
         <Country country={countries[0]} />
+        <Weather weather={weather} country={countries[0]} />
       </div>
     );
   }
