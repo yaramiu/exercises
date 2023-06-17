@@ -1,10 +1,20 @@
-import { Fragment } from "react";
-
-const Country = ({ name, country }) => {
-  if (!country) return <div>{name}</div>;
+const Country = ({ country, handleCountryButton }) => {
+  if (handleCountryButton)
+    return (
+      <div>
+        {country.name.common}{" "}
+        <button
+          onClick={() => {
+            handleCountryButton([country]);
+          }}
+        >
+          show
+        </button>
+      </div>
+    );
 
   return (
-    <Fragment>
+    <div>
       <h2>{country.name.common}</h2>
       <p>capital {country.capital}</p>
       <p>area {country.area}</p>
@@ -17,7 +27,7 @@ const Country = ({ name, country }) => {
         ))}
       </ul>
       <img src={country.flags.png} alt={country.flags.alt} />
-    </Fragment>
+    </div>
   );
 };
 

@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import axios from "axios";
 
 import Countries from "./components/Countries";
+import Search from "./components/Search";
 
 const App = () => {
   const [countries, setCountries] = useState([]);
@@ -35,13 +36,18 @@ const App = () => {
     setSearchedCountries(filteredCountries);
   };
 
+  const showCountryView = (country) => {
+    setSearchedCountries(country);
+  };
+
   return (
-    <div>
-      <div>
-        find countries <input onChange={handleCountryChange} />
-      </div>
-      <Countries countries={searchedCountries} />
-    </div>
+    <Fragment>
+      <Search handleSearchInput={handleCountryChange} />
+      <Countries
+        countries={searchedCountries}
+        handleCountryButton={showCountryView}
+      />
+    </Fragment>
   );
 };
 

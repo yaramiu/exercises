@@ -1,6 +1,6 @@
 import Country from "./Country";
 
-const Countries = ({ countries }) => {
+const Countries = ({ countries, handleCountryButton }) => {
   if (countries.length === 0) {
     return <div></div>;
   }
@@ -15,7 +15,11 @@ const Countries = ({ countries }) => {
     return (
       <div>
         {countries.map((country) => (
-          <Country key={country.name.common} name={country.name.common} />
+          <Country
+            key={country.name.common}
+            country={country}
+            handleCountryButton={handleCountryButton}
+          />
         ))}
       </div>
     );
