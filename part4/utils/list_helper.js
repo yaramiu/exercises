@@ -9,4 +9,20 @@ const totalLikes = (blogs) => {
   return total;
 };
 
-module.exports = { dummy, totalLikes };
+const favoriteBlog = (blogs) => {
+  let maxLikes = 0;
+  let blogToReturn;
+  blogs.forEach((blog) => {
+    if (blog.likes > maxLikes) {
+      blogToReturn = {
+        title: blog.title,
+        author: blog.author,
+        likes: blog.likes,
+      };
+      maxLikes = blog.likes;
+    }
+  });
+  return blogToReturn;
+};
+
+module.exports = { dummy, totalLikes, favoriteBlog };
