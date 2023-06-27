@@ -53,4 +53,32 @@ const mostBlogs = (blogs) => {
   return { authorWithMostBlogs, mostBlogs };
 };
 
-module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs };
+const mostLikes = (blogs) => {
+  const authorAndLikes = new Map();
+  blogs.forEach((blog) => {
+    if (!authorAndLikes.has(blog.author)) {
+      authorAndLikes.set(blog.author, blog.likes);
+    } else {
+      let likes = authorAndLikes.get(blog.author);
+      likes += blog.likes;
+      authorAndLikes.set(blog.author, likes);
+    }
+  });
+
+  let authorWithMostLikes;
+  let mostLikes = 0;
+  for (const [author, likes] of authorAndLikes.entries()) {
+    if (likes > mostLikes) {
+      authorWithMostLikes = author;
+      mostLikes = likes;
+    }
+  }
+
+  if (authorWithMostLikes === undefined) {
+    return undefined;
+  }
+
+  return { authorWithMostLikes, mostLikes };
+};
+
+module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes };
