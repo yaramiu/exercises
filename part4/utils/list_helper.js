@@ -25,4 +25,32 @@ const favoriteBlog = (blogs) => {
   return blogToReturn;
 };
 
-module.exports = { dummy, totalLikes, favoriteBlog };
+const mostBlogs = (blogs) => {
+  const authorAndBlogs = new Map();
+  blogs.forEach((blog) => {
+    if (!authorAndBlogs.has(blog.author)) {
+      let numBlogs = 1;
+      authorAndBlogs.set(blog.author, numBlogs);
+    } else {
+      let numBlogs = authorAndBlogs.get(blog.author);
+      authorAndBlogs.set(blog.author, ++numBlogs);
+    }
+  });
+
+  let authorWithMostBlogs;
+  let mostBlogs = 0;
+  for (const [author, numBlogs] of authorAndBlogs.entries()) {
+    if (numBlogs > mostBlogs) {
+      authorWithMostBlogs = author;
+      mostBlogs = numBlogs;
+    }
+  }
+
+  if (authorWithMostBlogs === undefined) {
+    return undefined;
+  }
+
+  return { authorWithMostBlogs, mostBlogs };
+};
+
+module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs };
