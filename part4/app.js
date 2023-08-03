@@ -1,5 +1,6 @@
 const cors = require("cors");
 const express = require("express");
+require("express-async-errors");
 const mongoose = require("mongoose");
 const middleware = require("./utils/middleware");
 const morgan = require("morgan");
