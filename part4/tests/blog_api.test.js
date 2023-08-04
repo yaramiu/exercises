@@ -1,3 +1,4 @@
+const helper = require("./test_helper");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
@@ -28,18 +29,31 @@ test("a blog post can be added", async () => {
     likes: 10,
   };
 
-  let request = await api.get("/api/blogs");
-  const blogPostsBefore = request.body;
+  const blogPostsBefore = await helper.getBlogPostsFromDatabase();
 
   await api.post("/api/blogs").send(newBlogPost).expect(201);
 
-  request = await api.get("/api/blogs");
-  const blogPostsAfter = request.body;
+  const blogPostsAfter = await helper.getBlogPostsFromDatabase();
 
   expect(blogPostsAfter).toHaveLength(blogPostsBefore.length + 1);
 
   const titles = blogPostsAfter.map((blogPost) => blogPost.title);
   expect(titles).toContain("npm audit: Broken by Design");
+});
+
+test("blog missing the likes property defaults to a value of 0", async () => {
+  const newBlogPost = {
+    title: "On let vs const",
+    author: "Dan Abramov",
+    url: "https://overreacted.io/on-let-vs-const/",
+  };
+
+  expect(newBlogPost.likes).toBeUndefined();
+
+  const response = await api.post("/api/blogs").expect(201);
+
+  const blogPost = response.body;
+  expect(blogPost.likes).toBe(0);
 });
 
 afterAll(async () => {
