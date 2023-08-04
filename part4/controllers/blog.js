@@ -13,6 +13,11 @@ blogRouter.post("/", async (request, response) => {
     blog.likes = 0;
   }
 
+  if (blog.title === undefined || blog.url === undefined) {
+    response.sendStatus(400);
+    return;
+  }
+
   const result = await blog.save();
   response.status(201).json(result);
 });

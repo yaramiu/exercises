@@ -50,10 +50,36 @@ test("blog missing the likes property defaults to a value of 0", async () => {
 
   expect(newBlogPost.likes).toBeUndefined();
 
-  const response = await api.post("/api/blogs").expect(201);
+  const response = await api.post("/api/blogs").send(newBlogPost).expect(201);
 
   const blogPost = response.body;
   expect(blogPost.likes).toBe(0);
+});
+
+test("blog missing title property returns bad request", async () => {
+  const newBlogPost = {
+    author: "Dan Abramov",
+    url: "https://overreacted.io/how-does-the-development-mode-work/",
+  };
+
+  await api.post("/api/blogs").send(newBlogPost).expect(400);
+});
+
+test("blog missing url property returns bad request", async () => {
+  const newBlogPost = {
+    title: "A Complete Guide to useEffect",
+    author: "Dan Abramov",
+  };
+
+  await api.post("/api/blogs").send(newBlogPost).expect(400);
+});
+
+test("blog missing both title and url properties returns bad request", async () => {
+  const newBlogPost = {
+    author: "Dan Abramov",
+  };
+
+  await api.post("/api/blogs").send(newBlogPost).expect(400);
 });
 
 afterAll(async () => {
