@@ -125,7 +125,7 @@ const App = () => {
       setPersons(persons.concat(createdPerson));
       updateMessage(`Added ${createdPerson.name}`, "success");
     } catch (error) {
-      console.error(error);
+      updateMessage(error.response.data.error, "failure");
     }
 
     resetInputFields();
