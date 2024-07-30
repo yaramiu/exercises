@@ -16,13 +16,13 @@ const favoriteBlog = (blogs) => {
       blogWithMaxLikes = blog;
     }
   });
-  return !blogWithMaxLikes
-    ? null
-    : {
-        title: blogWithMaxLikes.title,
-        author: blogWithMaxLikes.author,
-        likes: blogWithMaxLikes.likes,
-      };
+
+  if (!blogWithMaxLikes) return null;
+  return {
+    title: blogWithMaxLikes.title,
+    author: blogWithMaxLikes.author,
+    likes: blogWithMaxLikes.likes,
+  };
 };
 
 const mostBlogs = (blogs) => {
@@ -45,9 +45,34 @@ const mostBlogs = (blogs) => {
       authorWithMostBlogs = entry[0];
     }
   }
-  return !authorWithMostBlogs
-    ? null
-    : { author: authorWithMostBlogs, blogs: currentMaxNumberOfBlogs };
+
+  if (!authorWithMostBlogs) return null;
+  return { author: authorWithMostBlogs, blogs: currentMaxNumberOfBlogs };
 };
 
-export default { dummy, totalLikes, favoriteBlog, mostBlogs };
+const mostLikes = (blogs) => {
+  const authorLikes = new Map();
+  blogs.forEach((blog) => {
+    if (!authorLikes.has(blog.author)) {
+      authorLikes.set(blog.author, blog.likes);
+    } else {
+      const currentNumberOfLikes = authorLikes.get(blog.author);
+      authorLikes.set(blog.author, currentNumberOfLikes + blog.likes);
+    }
+  });
+
+  let authorWithMostLikes = null;
+  let currentMaxNumberOfLikes = 0;
+  for (const [author, likes] of authorLikes.entries()) {
+    const currentNumberOfLikes = likes;
+    if (currentNumberOfLikes >= currentMaxNumberOfLikes) {
+      currentMaxNumberOfLikes = currentNumberOfLikes;
+      authorWithMostLikes = author;
+    }
+  }
+
+  if (!authorWithMostLikes) return null;
+  return { author: authorWithMostLikes, likes: currentMaxNumberOfLikes };
+};
+
+export default { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes };
