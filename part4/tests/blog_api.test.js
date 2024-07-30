@@ -29,6 +29,13 @@ test("all blogs are returned", async () => {
   assert.strictEqual(response.body.length, testHelper.initialBlogs.length);
 });
 
+test("blogs from DB have id property", async () => {
+  const blogs = await testHelper.blogsInDB();
+  for (let blog of blogs) {
+    assert.notStrictEqual(blog.id, undefined);
+  }
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
