@@ -36,6 +36,27 @@ test("blogs from DB have id property", async () => {
   }
 });
 
+test("successfully create a new blog post", async () => {
+  const newBlog = {
+    title: "Canonical string reduction",
+    author: "Edsger W. Dijkstra",
+    url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+    likes: 12,
+  };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const blogsAtEnd = await testHelper.blogsInDB();
+  assert.strictEqual(blogsAtEnd.length, testHelper.initialBlogs.length + 1);
+
+  const createdBlog = await Blog.findOne(newBlog);
+  assert.notStrictEqual(createdBlog, undefined);
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
