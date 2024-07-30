@@ -25,4 +25,29 @@ const favoriteBlog = (blogs) => {
       };
 };
 
-export default { dummy, totalLikes, favoriteBlog };
+const mostBlogs = (blogs) => {
+  const authorBlogs = new Map();
+  blogs.forEach((blog) => {
+    if (!authorBlogs.get(blog.author)) {
+      authorBlogs.set(blog.author, 1);
+    } else {
+      const currentNumberOfBlogs = authorBlogs.get(blog.author);
+      authorBlogs.set(blog.author, currentNumberOfBlogs + 1);
+    }
+  });
+
+  let authorWithMostBlogs = null;
+  let currentMaxNumberOfBlogs = 0;
+  for (const entry of authorBlogs.entries()) {
+    const currentNumberOfBlogs = entry[1];
+    if (currentNumberOfBlogs >= currentMaxNumberOfBlogs) {
+      currentMaxNumberOfBlogs = currentNumberOfBlogs;
+      authorWithMostBlogs = entry[0];
+    }
+  }
+  return !authorWithMostBlogs
+    ? null
+    : { author: authorWithMostBlogs, blogs: currentMaxNumberOfBlogs };
+};
+
+export default { dummy, totalLikes, favoriteBlog, mostBlogs };

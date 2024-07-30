@@ -102,3 +102,23 @@ describe("favorite blog", () => {
     });
   });
 });
+
+describe("most blogs", () => {
+  test("of empty list is null", () => {
+    assert.deepStrictEqual(listHelper.mostBlogs([]), null);
+  });
+
+  test("when list has only one blog returns an object with author equal to that blogs author and blogs equal to 1", () => {
+    assert.deepStrictEqual(listHelper.mostBlogs(listWithOneBlog), {
+      author: "Edsger W. Dijkstra",
+      blogs: 1,
+    });
+  });
+
+  test("of a bigger list returns correct value", () => {
+    assert.deepStrictEqual(listHelper.mostBlogs(blogs), {
+      author: "Robert C. Martin",
+      blogs: 3,
+    });
+  });
+});
