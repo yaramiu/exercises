@@ -120,6 +120,38 @@ describe("when there is initially some blogs", () => {
       assert.strictEqual(nonExistentBlog, null);
     });
   });
+
+  describe("updating a blog", () => {
+    test("succeeds if id is in DB", async () => {
+      const blogsAtStart = await testHelper.blogsInDB();
+      const firstBlog = blogsAtStart[0];
+
+      const response = await api
+        .put(`/api/blogs/${firstBlog.id}`)
+        .send(testHelper.blogWithMoreLikes)
+        .expect(200)
+        .expect("Content-Type", /application\/json/);
+      const updatedBlog = response.body;
+
+      assert.strictEqual(updatedBlog.likes, 10);
+    });
+
+    test("returns status code 404 if blog does not exist", async () => {
+      const validNonExistentId = await testHelper.nonExistentId();
+      await api
+        .put(`/api/blogs/${validNonExistentId}`)
+        .send(testHelper.blogWithMoreLikes)
+        .expect(404);
+    });
+
+    test("returns status code 400 if id is invalid", async () => {
+      const invalidId = "invalidId";
+      await api
+        .put(`/api/blogs/${invalidId}`)
+        .send(testHelper.blogWithMoreLikes)
+        .expect(400);
+    });
+  });
 });
 
 after(async () => {

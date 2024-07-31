@@ -24,4 +24,23 @@ const blogsInDB = async () => {
   return blogs.map((blog) => blog.toJSON());
 };
 
-export default { initialBlogs, blogsInDB };
+const nonExistentId = async () => {
+  const temporaryBlog = new Blog({
+    title: "This will be deleted soon",
+    url: "some url",
+  });
+
+  await temporaryBlog.save();
+  await temporaryBlog.deleteOne();
+
+  return temporaryBlog._id.toString();
+};
+
+const blogWithMoreLikes = {
+  title: "React patterns",
+  author: "Michael Chan",
+  url: "https://reactpatterns.com/",
+  likes: 10,
+};
+
+export default { initialBlogs, blogsInDB, nonExistentId, blogWithMoreLikes };
