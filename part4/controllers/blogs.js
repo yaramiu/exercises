@@ -8,11 +8,20 @@ blogsRouter.get("/", async (request, response) => {
   response.json(blogs);
 });
 
-blogsRouter.post("/", async (request, response) => {
+blogsRouter.post("/", async (request, response, next) => {
   const blog = new Blog(request.body);
 
-  const result = await blog.save();
-  response.status(201).json(result);
+  try {
+    const result = await blog.save();
+    response.status(201).json(result);
+  } catch (exception) {
+    if (blog.title === undefined) {
+      response.status(400).json({ error: "Missing title" });
+    } else if (blog.url === undefined) {
+      response.status(400).json({ error: "Missing url" });
+    }
+    next(exception);
+  }
 });
 
 export default blogsRouter;

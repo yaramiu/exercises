@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import config from "./utils/config.js";
 import blogsRouter from "./controllers/blogs.js";
 import morgan from "morgan";
+import middleware from "./utils/middleware.js";
 
 const app = express();
 
@@ -19,5 +20,7 @@ if (process.env.NODE_ENV !== "test") {
 }
 
 app.use("/api/blogs", blogsRouter);
+
+app.use(middleware.errorHandler);
 
 export default app;

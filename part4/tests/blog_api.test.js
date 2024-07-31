@@ -74,6 +74,38 @@ test("creating blog without likes sets it to zero by default", async () => {
   assert.strictEqual(createdBlog.likes, 0);
 });
 
+test("cannot create blog without title", async () => {
+  const blogWithoutTitle = {
+    author: "Robert C. Martin",
+    url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+    likes: 0,
+  };
+
+  const response = await api
+    .post("/api/blogs")
+    .send(blogWithoutTitle)
+    .expect(400)
+    .expect("Content-Type", /application\/json/);
+
+  assert.deepStrictEqual(response.body, { error: "Missing title" });
+});
+
+test("cannot create blog without url", async () => {
+  const blogWithoutUrl = {
+    title: "TDD harms architecture",
+    author: "Robert C. Martin",
+    likes: 0,
+  };
+
+  const response = await api
+    .post("/api/blogs")
+    .send(blogWithoutUrl)
+    .expect(400)
+    .expect("Content-Type", /application\/json/);
+
+  assert.deepStrictEqual(response.body, { error: "Missing url" });
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
