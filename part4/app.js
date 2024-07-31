@@ -7,6 +7,8 @@ import morgan from "morgan";
 
 const app = express();
 
+mongoose.set("strictQuery", true);
+
 await mongoose.connect(config.MONGODB_URI);
 
 app.use(cors());
