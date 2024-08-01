@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import config from "./utils/config.js";
 import blogsRouter from "./controllers/blogs.js";
 import usersRouter from "./controllers/users.js";
+import loginRouter from "./controllers/login.js";
 import morgan from "morgan";
 import middleware from "./utils/middleware.js";
 
@@ -22,6 +23,7 @@ if (process.env.NODE_ENV !== "test") {
 
 app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/login", loginRouter);
 
 app.use(middleware.errorHandler);
 
