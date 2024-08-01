@@ -26,9 +26,9 @@ blogsRouter.post(
     });
 
     if (blog.title === undefined) {
-      response.status(400).json({ error: "Missing title" });
+      response.status(400).json({ error: "missing title" });
     } else if (blog.url === undefined) {
-      response.status(400).json({ error: "Missing url" });
+      response.status(400).json({ error: "missing url" });
     }
 
     const savedBlog = await blog.save();
@@ -48,7 +48,7 @@ blogsRouter.delete(
 
     const blog = await Blog.findById(blogId);
     if (!blog) {
-      return response.status(400).json({ error: "invalid blog id" });
+      return response.status(404).end();
     }
 
     if (blog.user.toString() === user.id.toString()) {

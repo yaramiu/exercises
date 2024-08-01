@@ -1,4 +1,8 @@
 import Blog from "../models/blog.js";
+import app from "../app.js";
+import supertest from "supertest";
+
+const api = supertest(app);
 
 const initialBlogs = [
   {
@@ -19,7 +23,7 @@ const initialBlogs = [
   },
 ];
 
-const blogsInDB = async () => {
+const blogsInDb = async () => {
   const blogs = await Blog.find({});
   return blogs.map((blog) => blog.toJSON());
 };
@@ -43,4 +47,35 @@ const blogWithMoreLikes = {
   likes: 10,
 };
 
-export default { initialBlogs, blogsInDB, nonExistentId, blogWithMoreLikes };
+const getTokenFromNewUser = async () => {
+  const newUser = {
+    username: "root",
+    name: "Superuser",
+    password: "salainen",
+  };
+  await api.post("/api/users").send(newUser);
+
+  const loginInfo = {
+    username: "root",
+    password: "salainen",
+  };
+  const response = await api.post("/api/login").send(loginInfo);
+
+  return response.body.token;
+};
+
+const newBlog = {
+  title: "Canonical string reduction",
+  author: "Edsger W. Dijkstra",
+  url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+  likes: 12,
+};
+
+export default {
+  initialBlogs,
+  blogsInDb,
+  nonExistentId,
+  blogWithMoreLikes,
+  getTokenFromNewUser,
+  newBlog,
+};

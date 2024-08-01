@@ -5,6 +5,7 @@ import assert from "node:assert";
 import testHelper from "./test_helper.js";
 import Blog from "../models/blog.js";
 import mongoose from "mongoose";
+import User from "../models/user.js";
 
 const api = supertest(app);
 
@@ -12,6 +13,7 @@ describe("when there is initially some blogs", () => {
   beforeEach(async () => {
     await Blog.deleteMany({});
     await Blog.insertMany(testHelper.initialBlogs);
+    await User.deleteMany({});
   });
 
   test("blogs are returned as json", async () => {
@@ -26,32 +28,29 @@ describe("when there is initially some blogs", () => {
     assert.strictEqual(response.body.length, testHelper.initialBlogs.length);
   });
 
-  test("blogs from DB have id property", async () => {
-    const blogs = await testHelper.blogsInDB();
+  test("blogs from db have id property", async () => {
+    const blogs = await testHelper.blogsInDb();
     for (let blog of blogs) {
       assert.notStrictEqual(blog.id, undefined);
     }
   });
 
   describe("addition of a new blog", async () => {
-    test("succeeds with valid data", async () => {
-      const newBlog = {
-        title: "Canonical string reduction",
-        author: "Edsger W. Dijkstra",
-        url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-        likes: 12,
-      };
+    test("succeeds with valid data and token", async () => {
+      const token = await testHelper.getTokenFromNewUser();
 
-      await api
+      const response = await api
         .post("/api/blogs")
-        .send(newBlog)
+        .set("Authorization", `Bearer ${token}`)
+        .send(testHelper.newBlog)
         .expect(201)
         .expect("Content-Type", /application\/json/);
+      const returnedBlog = response.body;
 
-      const blogsAtEnd = await testHelper.blogsInDB();
+      const blogsAtEnd = await testHelper.blogsInDb();
       assert.strictEqual(blogsAtEnd.length, testHelper.initialBlogs.length + 1);
 
-      const createdBlog = await Blog.findOne(newBlog);
+      const createdBlog = await Blog.findById(returnedBlog.id);
       assert.notStrictEqual(createdBlog, undefined);
     });
 
@@ -61,14 +60,17 @@ describe("when there is initially some blogs", () => {
         author: "Robert C. Martin",
         url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
       };
+      const token = await testHelper.getTokenFromNewUser();
 
-      await api
+      const response = await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
         .send(blogWithoutLikes)
         .expect(201)
         .expect("Content-Type", /application\/json/);
+      const returnedBlog = response.body;
 
-      const createdBlog = await Blog.findOne(blogWithoutLikes);
+      const createdBlog = await Blog.findById(returnedBlog.id);
       assert.strictEqual(createdBlog.likes, 0);
     });
 
@@ -78,14 +80,16 @@ describe("when there is initially some blogs", () => {
         url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
         likes: 0,
       };
+      const token = await testHelper.getTokenFromNewUser();
 
       const response = await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
         .send(blogWithoutTitle)
         .expect(400)
         .expect("Content-Type", /application\/json/);
 
-      assert.deepStrictEqual(response.body, { error: "Missing title" });
+      assert.deepStrictEqual(response.body, { error: "missing title" });
     });
 
     test("returns status code 400 if no url", async () => {
@@ -94,36 +98,130 @@ describe("when there is initially some blogs", () => {
         author: "Robert C. Martin",
         likes: 0,
       };
+      const token = await testHelper.getTokenFromNewUser();
 
       const response = await api
         .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
         .send(blogWithoutUrl)
         .expect(400)
         .expect("Content-Type", /application\/json/);
 
-      assert.deepStrictEqual(response.body, { error: "Missing url" });
+      assert.deepStrictEqual(response.body, { error: "missing url" });
+    });
+
+    test("returns status code 401 if token is missing or invalid", async () => {
+      let response = await api
+        .post("/api/blogs")
+        .send(testHelper.newBlog)
+        .expect(401)
+        .expect("Content-Type", /application\/json/);
+      assert.deepStrictEqual(response.body, { error: "invalid token" });
+
+      response = await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer 123456`)
+        .send(testHelper.newBlog)
+        .expect(401)
+        .expect("Content-Type", /application\/json/);
+      assert.deepStrictEqual(response.body, { error: "invalid token" });
     });
   });
 
   describe("deletion of a blog", () => {
-    test("succeeds if id is in DB", async () => {
-      const blogsAtStart = await testHelper.blogsInDB();
-      const firstBlog = blogsAtStart[0];
+    test("succeeds if blog is in db and token is valid", async () => {
+      const token = await testHelper.getTokenFromNewUser();
 
-      await api.delete(`/api/blogs/${firstBlog.id}`).expect(204);
+      const response = await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
+        .send(testHelper.newBlog);
+      const createdBlog = response.body;
 
-      const blogsAtEnd = await testHelper.blogsInDB();
+      const blogsBeforeDeletion = await testHelper.blogsInDb();
+      await api
+        .delete(`/api/blogs/${createdBlog.id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(204);
+      const blogsAfterDeletion = await testHelper.blogsInDb();
 
-      assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
+      assert.strictEqual(
+        blogsAfterDeletion.length,
+        blogsBeforeDeletion.length - 1
+      );
+    });
 
-      const nonExistentBlog = await Blog.findOne(firstBlog);
-      assert.strictEqual(nonExistentBlog, null);
+    test("returns status code 404 if blog does not exist", async () => {
+      const validNonExistentId = await testHelper.nonExistentId();
+      const token = await testHelper.getTokenFromNewUser();
+      await api
+        .delete(`/api/blogs/${validNonExistentId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(404);
+    });
+
+    test("returns status code 400 if blog id is invalid", async () => {
+      const invalidId = "invalidId";
+      const token = await testHelper.getTokenFromNewUser();
+
+      const response = await api
+        .delete(`/api/blogs/${invalidId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .expect(400)
+        .expect("Content-Type", /application\/json/);
+
+      assert.deepStrictEqual(response.body, { error: "malformatted id" });
+    });
+
+    test("returns status code 401 if token is missing or invalid", async () => {
+      const token = await testHelper.getTokenFromNewUser();
+
+      let response = await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
+        .send(testHelper.newBlog);
+      const createdBlog = response.body;
+
+      response = await api
+        .delete(`/api/blogs/${createdBlog.id}`)
+        .expect(401)
+        .expect("Content-Type", /application\/json/);
+      assert.deepStrictEqual(response.body, { error: "invalid token" });
+
+      response = await api
+        .delete(`/api/blogs/${createdBlog.id}`)
+        .set("Authorization", `Bearer abc123`)
+        .expect(401)
+        .expect("Content-Type", /application\/json/);
+      assert.deepStrictEqual(response.body, { error: "invalid token" });
+    });
+
+    test("returns status code 401 if token is not from the same user who created the blog", async () => {
+      const token = await testHelper.getTokenFromNewUser();
+
+      let response = await api
+        .post("/api/blogs")
+        .set("Authorization", `Bearer ${token}`)
+        .send(testHelper.newBlog);
+      const createdBlog = response.body;
+
+      await User.deleteMany({});
+
+      const tokenFromDifferentUser = await testHelper.getTokenFromNewUser();
+
+      response = await api
+        .delete(`/api/blogs/${createdBlog.id}`)
+        .set("Authorization", `Bearer ${tokenFromDifferentUser}`)
+        .expect(401)
+        .expect("Content-Type", /application\/json/);
+
+      assert.deepStrictEqual(response.body, { error: "invalid user" });
     });
   });
 
   describe("updating a blog", () => {
-    test("succeeds if id is in DB", async () => {
-      const blogsAtStart = await testHelper.blogsInDB();
+    test("succeeds if blog is in db", async () => {
+      const blogsAtStart = await testHelper.blogsInDb();
       const firstBlog = blogsAtStart[0];
 
       const response = await api
@@ -144,7 +242,7 @@ describe("when there is initially some blogs", () => {
         .expect(404);
     });
 
-    test("returns status code 400 if id is invalid", async () => {
+    test("returns status code 400 if blog id is invalid", async () => {
       const invalidId = "invalidId";
       await api
         .put(`/api/blogs/${invalidId}`)
