@@ -1,4 +1,6 @@
 import logger from "./logger.js";
+import jwt from "jsonwebtoken";
+import User from "../models/user.js";
 
 const tokenExtractor = (request, response, next) => {
   request.token = null;
@@ -6,6 +8,15 @@ const tokenExtractor = (request, response, next) => {
   if (authorization && authorization.startsWith("Bearer ")) {
     request.token = authorization.replace("Bearer ", "");
   }
+  next();
+};
+
+const userExtractor = async (request, response, next) => {
+  const decodedToken = jwt.verify(request.token, process.env.SECRET);
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: "token invalid" });
+  }
+  request.user = await User.findById(decodedToken.id);
   next();
 };
 
@@ -38,4 +49,4 @@ const errorHandler = (error, request, response, next) => {
   next(error);
 };
 
-export default { errorHandler, tokenExtractor };
+export default { errorHandler, tokenExtractor, userExtractor };
