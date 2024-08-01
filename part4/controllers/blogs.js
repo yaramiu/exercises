@@ -1,19 +1,31 @@
 import express from "express";
 import Blog from "../models/blog.js";
+import User from "../models/user.js";
 
 const blogsRouter = express.Router();
 
 blogsRouter.get("/", async (request, response) => {
-  const blogs = await Blog.find({});
+  const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   response.json(blogs);
 });
 
 blogsRouter.post("/", async (request, response, next) => {
-  const blog = new Blog(request.body);
+  const { url, title, author, likes } = request.body;
+  const user = await User.findOne({});
+
+  const blog = new Blog({
+    url,
+    title,
+    author,
+    user: user.id,
+    likes,
+  });
 
   try {
-    const result = await blog.save();
-    response.status(201).json(result);
+    const savedBlog = await blog.save();
+    user.blogs = user.blogs.concat(savedBlog._id);
+    await user.save();
+    response.status(201).json(savedBlog);
   } catch (exception) {
     if (blog.title === undefined) {
       response.status(400).json({ error: "Missing title" });
