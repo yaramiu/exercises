@@ -13,7 +13,7 @@ usersRouter.get("/", async (request, response) => {
   response.status(200).json(users);
 });
 
-usersRouter.post("/", async (request, response, next) => {
+usersRouter.post("/", async (request, response) => {
   const { username, name, password } = request.body;
 
   if (!password) {
@@ -35,12 +35,8 @@ usersRouter.post("/", async (request, response, next) => {
     passwordHash,
   });
 
-  try {
-    const savedUser = await user.save();
-    response.status(201).json(savedUser);
-  } catch (exception) {
-    next(exception);
-  }
+  const savedUser = await user.save();
+  response.status(201).json(savedUser);
 });
 
 export default usersRouter;

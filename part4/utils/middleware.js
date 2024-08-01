@@ -22,6 +22,8 @@ const errorHandler = (error, request, response, next) => {
     error.message.includes(duplicateKeyMongoErrorMessage)
   ) {
     return response.status(400).json({ error: "username is not unique" });
+  } else if (error.name === "JsonWebTokenError") {
+    return response.status(401).json({ error: "invalid token" });
   }
 
   next(error);
