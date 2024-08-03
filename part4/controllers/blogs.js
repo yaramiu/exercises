@@ -62,24 +62,36 @@ blogsRouter.delete(
   }
 );
 
-blogsRouter.put("/:id", async (request, response) => {
-  const body = request.body;
+blogsRouter.put(
+  "/:id",
+  middleware.tokenExtractor,
+  middleware.userExtractor,
+  async (request, response) => {
+    const { url, title, author, likes } = request.body;
+    const blogId = request.params.id;
+    const user = request.user;
 
-  const blog = {
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: Number(body.likes),
-  };
+    const blog = {
+      url,
+      title,
+      author,
+      user: user.id,
+      likes,
+    };
 
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
-    new: true,
-  });
-  if (updatedBlog) {
-    response.status(200).json(updatedBlog);
-  } else {
-    response.status(404).end();
+    const updatedBlog = await Blog.findByIdAndUpdate(blogId, blog, {
+      new: true,
+    });
+    if (updatedBlog) {
+      user.blogs = user.blogs.map((blog) =>
+        blog.id === blogId ? updatedBlog : blog
+      );
+      await user.save();
+      response.status(200).json(updatedBlog);
+    } else {
+      response.status(404).end();
+    }
   }
-});
+);
 
 export default blogsRouter;

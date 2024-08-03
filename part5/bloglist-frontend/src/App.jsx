@@ -75,6 +75,24 @@ const App = () => {
     }
   };
 
+  const addLikes = async (blogToUpdate) => {
+    blogService.setToken(user.token);
+    const blogRequestData = {
+      ...blogToUpdate,
+      likes: blogToUpdate.likes + 1,
+      user: blogToUpdate.user.id,
+    };
+    try {
+      let updatedBlog = await blogService.update(blogRequestData);
+      updatedBlog = { ...updatedBlog, user: user };
+      setBlogs(
+        blogs.map((blog) => (blog.id === blogToUpdate.id ? updatedBlog : blog))
+      );
+    } catch (exception) {
+      console.error(exception);
+    }
+  };
+
   if (user === null) {
     return (
       <div>
@@ -122,7 +140,7 @@ const App = () => {
         <BlogForm createBlog={addBlog} />
       </Togglable>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} addLikes={addLikes} />
       ))}
     </div>
   );
