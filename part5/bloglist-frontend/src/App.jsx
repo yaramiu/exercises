@@ -84,12 +84,28 @@ const App = () => {
     };
     try {
       let updatedBlog = await blogService.update(blogRequestData);
-      updatedBlog = { ...updatedBlog, user: user };
+      updatedBlog = { ...updatedBlog, user: blogToUpdate.user };
       setBlogs(
         blogs.map((blog) => (blog.id === blogToUpdate.id ? updatedBlog : blog))
       );
     } catch (exception) {
       console.error(exception);
+    }
+  };
+
+  const removeBlog = async (blogToRemove) => {
+    if (
+      window.confirm(
+        `Remove blog ${blogToRemove.title} by ${blogToRemove.author}`
+      )
+    ) {
+      blogService.setToken(user.token);
+      try {
+        await blogService.remove(blogToRemove.id);
+        setBlogs(blogs.filter((blog) => blog.id != blogToRemove.id));
+      } catch (exception) {
+        console.error(exception);
+      }
     }
   };
 
@@ -142,7 +158,13 @@ const App = () => {
       {blogs
         .sort((a, b) => b.likes - a.likes)
         .map((blog) => (
-          <Blog key={blog.id} blog={blog} addLikes={addLikes} />
+          <Blog
+            key={blog.id}
+            blog={blog}
+            addLikes={addLikes}
+            currentlyViewingUser={user}
+            remove={removeBlog}
+          />
         ))}
     </div>
   );

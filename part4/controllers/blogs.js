@@ -67,9 +67,8 @@ blogsRouter.put(
   middleware.tokenExtractor,
   middleware.userExtractor,
   async (request, response) => {
-    const { url, title, author, likes } = request.body;
+    const { url, title, author, likes, user } = request.body;
     const blogId = request.params.id;
-    const user = request.user;
 
     const blog = {
       url,
@@ -83,10 +82,6 @@ blogsRouter.put(
       new: true,
     });
     if (updatedBlog) {
-      user.blogs = user.blogs.map((blog) =>
-        blog.id === blogId ? updatedBlog : blog
-      );
-      await user.save();
       response.status(200).json(updatedBlog);
     } else {
       response.status(404).end();
