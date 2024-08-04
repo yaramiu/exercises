@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import Blog from "./Blog";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 
 describe("<Blog />", () => {
@@ -30,12 +30,10 @@ describe("<Blog />", () => {
   });
 
   test("displays blog url and number of likes when show details button is clicked", async () => {
-    const { container } = render(
-      <Blog blog={blog} currentlyViewingUser={currentUser} />
-    );
+    render(<Blog blog={blog} currentlyViewingUser={currentUser} />);
 
     const user = userEvent.setup();
-    const showDetailsButton = container.querySelector(".show-details");
+    const showDetailsButton = screen.getByText("view");
     await user.click(showDetailsButton);
 
     const blogUrl = screen.getByText(
@@ -45,5 +43,26 @@ describe("<Blog />", () => {
     const blogLikes = screen.getByText("likes 0", { exact: false });
     expect(blogUrl).toBeDefined();
     expect(blogLikes).toBeDefined();
+  });
+
+  test("calls addLikes mock twice when the like button is clicked twice", async () => {
+    const addLikes = vi.fn();
+
+    render(
+      <Blog
+        blog={blog}
+        addLikes={addLikes}
+        currentlyViewingUser={currentUser}
+      />
+    );
+
+    const user = userEvent.setup();
+    const showDetailsButton = screen.getByText("view");
+    await user.click(showDetailsButton);
+
+    const likeButton = screen.getByText("like");
+    await user.click(likeButton);
+    await user.click(likeButton);
+    expect(addLikes.mock.calls).toHaveLength(2);
   });
 });
