@@ -19,7 +19,10 @@ const Blog = ({ blog, addLikes, currentlyViewingUser, remove }) => {
     <div style={blogStyle}>
       <div>
         {blog.title} {blog.author}{" "}
-        <button onClick={() => setIsDetailsVisible(!isDetailsVisible)}>
+        <button
+          className="show-details"
+          onClick={() => setIsDetailsVisible(!isDetailsVisible)}
+        >
           {isDetailsVisible ? "hide" : "view"}
         </button>
       </div>
