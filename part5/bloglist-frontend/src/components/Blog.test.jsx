@@ -45,7 +45,7 @@ describe("<Blog />", () => {
     expect(blogLikes).toBeDefined();
   });
 
-  test("calls addLikes mock twice when the like button is clicked twice", async () => {
+  test("calls addLikes twice when the like button is clicked twice", async () => {
     const addLikes = vi.fn();
 
     render(
