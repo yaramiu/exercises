@@ -80,7 +80,6 @@ const App = () => {
     const blogRequestData = {
       ...blogToUpdate,
       likes: blogToUpdate.likes + 1,
-      user: blogToUpdate.user.id,
     };
     try {
       let updatedBlog = await blogService.update(blogRequestData);

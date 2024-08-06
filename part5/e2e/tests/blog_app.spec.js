@@ -1,5 +1,5 @@
 import { test, expect, beforeEach, describe } from "@playwright/test";
-import { loginWith } from "./helper.js";
+import { loginWith, createBlog } from "./helper.js";
 
 describe("Blog app", () => {
   beforeEach(async ({ page, request }) => {
@@ -43,24 +43,57 @@ describe("Blog app", () => {
       });
 
       test("a new blog can be created", async ({ page }) => {
-        await page.getByRole("button", { name: "create new blog" }).click();
-
-        await page
-          .getByPlaceholder("blog title")
-          .fill("The Cloud Is Just Someone Else's Computer");
-        await page.getByPlaceholder("blog author").fill("Jeff Atwood");
-        await page
-          .getByPlaceholder("blog url")
-          .fill(
-            "https://blog.codinghorror.com/the-cloud-is-just-someone-elses-computer/"
-          );
-        await page.getByRole("button", { name: "create" }).click();
-
+        await createBlog(
+          page,
+          "The Cloud Is Just Someone Else's Computer",
+          "Jeff Atwood",
+          "https://blog.codinghorror.com/the-cloud-is-just-someone-elses-computer/"
+        );
         await expect(
           page.getByText(
             "The Cloud Is Just Someone Else's Computer Jeff Atwood"
           )
         ).toBeVisible();
+      });
+
+      describe("and multiple blogs exists", () => {
+        beforeEach(async ({ page }) => {
+          await createBlog(
+            page,
+            "The Cloud Is Just Someone Else's Computer",
+            "Jeff Atwood",
+            "https://blog.codinghorror.com/the-cloud-is-just-someone-elses-computer/"
+          );
+          await createBlog(
+            page,
+            "Code Smells",
+            "Jeff Atwood",
+            "https://blog.codinghorror.com/code-smells/"
+          );
+        });
+
+        test("liking a blog increases its likes", async ({ page }) => {
+          const noDetailsBlogDiv = page
+            .getByText(`Code Smells Jeff Atwood`)
+            .locator("..");
+          await noDetailsBlogDiv.getByRole("button", { name: "view" }).click();
+
+          const likesBefore = await page
+            .getByTestId("current-likes")
+            .textContent();
+
+          const responsePromise = page.waitForResponse(
+            (response) => response.status() === 200
+          );
+          await page.getByRole("button", { name: "like" }).click();
+          await responsePromise;
+
+          const likesAfter = await page
+            .getByTestId("current-likes")
+            .textContent();
+
+          expect(Number(likesAfter)).toStrictEqual(Number(likesBefore) + 1);
+        });
       });
     });
   });

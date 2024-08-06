@@ -27,7 +27,7 @@ const Blog = ({ blog, addLikes, currentlyViewingUser, remove }) => {
         <div>
           <div>
             {blog.url} <br />
-            likes {blog.likes}
+            likes <span data-testid="current-likes">{blog.likes}</span>
             <button onClick={() => addLikes(blog)}>like</button> <br />
             {blog.user.name}
           </div>
