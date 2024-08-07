@@ -19,4 +19,10 @@ const viewBlogDetails = async (page, blogTitle, blogAuthor) => {
   await noDetailsBlogDiv.getByRole("button", { name: "view" }).click();
 };
 
-export { loginWith, createBlog, viewBlogDetails };
+const createUser = async (request, username, name, password) => {
+  await request.post("/api/users", {
+    data: { username, name, password },
+  });
+};
+
+export { loginWith, createBlog, viewBlogDetails, createUser };

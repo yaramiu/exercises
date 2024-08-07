@@ -1,16 +1,16 @@
 import { test, expect, beforeEach, describe } from "@playwright/test";
-import { loginWith, createBlog, viewBlogDetails } from "./helper.js";
+import {
+  loginWith,
+  createBlog,
+  viewBlogDetails,
+  createUser,
+} from "./helper.js";
 
 describe("Blog app", () => {
   beforeEach(async ({ page, request }) => {
     await request.post("/api/testing/reset");
-    await request.post("/api/users", {
-      data: {
-        username: "mluukkai",
-        name: "Matti Luukkainen",
-        password: "salainen",
-      },
-    });
+    await createUser(request, "mluukkai", "Matti Luukkainen", "salainen");
+    await createUser(request, "hellas", "Arto Hellas", "salainen");
 
     await page.goto("/");
   });
@@ -100,6 +100,20 @@ describe("Blog app", () => {
           await page.getByRole("button", { name: "remove" }).click();
           await expect(
             page.getByText("Code Smells Jeff Atwood")
+          ).not.toBeVisible();
+        });
+
+        test("user who didn't add the blog can't see the blog's delete button", async ({
+          page,
+        }) => {
+          await page.evaluate(() => window.localStorage.clear());
+          await page.reload();
+
+          await loginWith(page, "hellas", "salainen");
+
+          await viewBlogDetails(page, "Code Smells", "Jeff Atwood");
+          expect(
+            page.getByRole("button", { name: "remove" })
           ).not.toBeVisible();
         });
       });
