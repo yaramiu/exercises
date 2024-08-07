@@ -1,5 +1,5 @@
 import { test, expect, beforeEach, describe } from "@playwright/test";
-import { loginWith, createBlog } from "./helper.js";
+import { loginWith, createBlog, viewBlogDetails } from "./helper.js";
 
 describe("Blog app", () => {
   beforeEach(async ({ page, request }) => {
@@ -73,10 +73,7 @@ describe("Blog app", () => {
         });
 
         test("liking a blog increases its likes", async ({ page }) => {
-          const noDetailsBlogDiv = page
-            .getByText(`Code Smells Jeff Atwood`)
-            .locator("..");
-          await noDetailsBlogDiv.getByRole("button", { name: "view" }).click();
+          await viewBlogDetails(page, "Code Smells", "Jeff Atwood");
 
           const likesBefore = await page
             .getByTestId("current-likes")
@@ -93,6 +90,17 @@ describe("Blog app", () => {
             .textContent();
 
           expect(Number(likesAfter)).toStrictEqual(Number(likesBefore) + 1);
+        });
+
+        test("user who added the blog can delete the blog", async ({
+          page,
+        }) => {
+          await viewBlogDetails(page, "Code Smells", "Jeff Atwood");
+          page.on("dialog", (dialog) => dialog.accept());
+          await page.getByRole("button", { name: "remove" }).click();
+          await expect(
+            page.getByText("Code Smells Jeff Atwood")
+          ).not.toBeVisible();
         });
       });
     });

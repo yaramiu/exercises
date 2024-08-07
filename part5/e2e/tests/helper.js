@@ -12,4 +12,11 @@ const createBlog = async (page, title, author, url) => {
   await page.getByRole("button", { name: "create" }).click();
 };
 
-export { loginWith, createBlog };
+const viewBlogDetails = async (page, blogTitle, blogAuthor) => {
+  const noDetailsBlogDiv = page
+    .getByText(`${blogTitle} ${blogAuthor}`)
+    .locator("..");
+  await noDetailsBlogDiv.getByRole("button", { name: "view" }).click();
+};
+
+export { loginWith, createBlog, viewBlogDetails };

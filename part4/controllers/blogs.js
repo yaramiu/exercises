@@ -14,15 +14,15 @@ blogsRouter.post(
   middleware.tokenExtractor,
   middleware.userExtractor,
   async (request, response) => {
-    const { url, title, author, likes } = request.body;
+    const { url, title, author } = request.body;
     const user = request.user;
 
     const blog = new Blog({
       url,
       title,
       author,
-      user: user.id,
-      likes,
+      user,
+      likes: 0,
     });
 
     if (blog.title === undefined) {
