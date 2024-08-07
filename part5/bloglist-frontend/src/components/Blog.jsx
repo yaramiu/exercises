@@ -16,7 +16,7 @@ const Blog = ({ blog, addLikes, currentlyViewingUser, remove }) => {
   };
 
   return (
-    <div style={blogStyle}>
+    <div data-testid="blog" style={blogStyle}>
       <div>
         {blog.title} {blog.author}{" "}
         <button onClick={() => setIsDetailsVisible(!isDetailsVisible)}>

@@ -4,6 +4,7 @@ import {
   createBlog,
   viewBlogDetails,
   createUser,
+  likeBlog,
 } from "./helper.js";
 
 describe("Blog app", () => {
@@ -103,7 +104,7 @@ describe("Blog app", () => {
           ).not.toBeVisible();
         });
 
-        test("user who didn't add the blog can't see the blog's delete button", async ({
+        test("user who didn't add the blog can't see the blog's remove button", async ({
           page,
         }) => {
           await page.evaluate(() => window.localStorage.clear());
@@ -115,6 +116,22 @@ describe("Blog app", () => {
           expect(
             page.getByRole("button", { name: "remove" })
           ).not.toBeVisible();
+        });
+
+        test("blogs are arranged in order of likes", async ({ page }) => {
+          let blogDivs = await page.getByTestId("blog").all();
+          await expect(blogDivs[0]).toContainText(
+            "The Cloud Is Just Someone Else's Computer Jeff Atwood"
+          );
+          await expect(blogDivs[1]).toContainText("Code Smells Jeff Atwood");
+
+          await likeBlog(page, "Code Smells", "Jeff Atwood");
+
+          blogDivs = await page.getByTestId("blog").all();
+          await expect(blogDivs[0]).toContainText("Code Smells Jeff Atwood");
+          await expect(blogDivs[1]).toContainText(
+            "The Cloud Is Just Someone Else's Computer Jeff Atwood"
+          );
         });
       });
     });
