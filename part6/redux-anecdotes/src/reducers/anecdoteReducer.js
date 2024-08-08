@@ -9,11 +9,27 @@ const anecdotesAtStart = [
 
 const getId = () => (100000 * Math.random()).toFixed(0);
 
-export const asObject = (anecdote) => {
+const asObject = (anecdote) => {
   return {
     content: anecdote,
     id: getId(),
     votes: 0,
+  };
+};
+
+export const increaseVoteOf = (id) => {
+  return {
+    type: "VOTE",
+    payload: {
+      id,
+    },
+  };
+};
+
+export const createAnecdoteWith = (content) => {
+  return {
+    type: "ADD",
+    payload: asObject(content),
   };
 };
 
