@@ -22,7 +22,12 @@ Anecdote.propTypes = {
 
 const AnecdoteList = () => {
   const dispatch = useDispatch();
-  const anecdotes = useSelector((state) => state);
+  const anecdotes = useSelector(({ anecdotes, filter }) => {
+    if (filter === "") {
+      return anecdotes;
+    }
+    return anecdotes.filter((anecdote) => anecdote.content.includes(filter));
+  });
 
   const vote = (id) => {
     dispatch(increaseVoteOf(id));
