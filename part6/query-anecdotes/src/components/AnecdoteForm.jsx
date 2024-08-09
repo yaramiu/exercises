@@ -19,12 +19,27 @@ const AnecdoteForm = () => {
     event.preventDefault();
     const content = event.target.anecdote.value;
     event.target.anecdote.value = "";
-    newAnecdoteMutation.mutate({ content, votes: 0 });
+    newAnecdoteMutation.mutate(
+      { content, votes: 0 },
+      {
+        onError: handleCreationError,
+      }
+    );
     notificationDispatch({
       type: "SET",
       payload: `anecdote '${content}' created`,
     });
     setTimeout(() => notificationDispatch({ type: "CLEAR" }), 5000);
+  };
+
+  const handleCreationError = (error) => {
+    if (
+      error.response.data.error ===
+      "too short anecdote, must have length 5 or more"
+    ) {
+      notificationDispatch({ type: "SET", payload: error.response.data.error });
+      setTimeout(() => notificationDispatch({ type: "CLEAR" }), 5000);
+    }
   };
 
   return (
