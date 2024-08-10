@@ -105,6 +105,11 @@ const CreateNew = (props) => {
     });
   };
 
+  const handleReset = () => {
+    const fields = [content, author, info];
+    fields.forEach((field) => field.reset());
+  };
+
   return (
     <div>
       <h2>create a new anecdote</h2>
@@ -122,6 +127,9 @@ const CreateNew = (props) => {
           <input {...info} />
         </div>
         <button>create</button>
+        <button type="button" onClick={handleReset}>
+          reset
+        </button>
       </form>
     </div>
   );
