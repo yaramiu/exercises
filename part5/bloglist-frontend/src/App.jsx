@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
@@ -6,15 +6,16 @@ import Notification from "./components/Notification";
 import "./index.css";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
+import NotificationContext from "./contexts/NotificationContext";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
   const blogFormRef = useRef();
+  const { notification, notificationDispatch } =
+    useContext(NotificationContext);
 
   useEffect(() => {
     const getBlogsFromServer = async () => {
@@ -46,9 +47,12 @@ const App = () => {
       setUsername("");
       setPassword("");
     } catch (exception) {
-      setErrorMessage("wrong username or password");
+      notificationDispatch({
+        type: "SET",
+        payload: "wrong username or password",
+      });
       setTimeout(() => {
-        setErrorMessage(null);
+        notificationDispatch({ type: "CLEAR" });
       }, 5000);
     }
   };
@@ -64,11 +68,12 @@ const App = () => {
       const createdBlog = await blogService.create(blog);
       blogFormRef.current.toggleVisibility();
       setBlogs(blogs.concat(createdBlog));
-      setSuccessMessage(
-        `a new blog ${createdBlog.title} by ${createdBlog.author} added`
-      );
+      notificationDispatch({
+        type: "SET",
+        payload: `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
+      });
       setTimeout(() => {
-        setSuccessMessage(null);
+        notificationDispatch({ type: "CLEAR" });
       }, 5000);
     } catch (exception) {
       console.error(exception);
@@ -112,7 +117,7 @@ const App = () => {
     return (
       <div>
         <h2>log in to application</h2>
-        <Notification type={"error"} message={errorMessage} />
+        <Notification type={"error"} message={notification} />
         <form onSubmit={handleLogin}>
           <div>
             username
@@ -143,7 +148,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification type={"success"} message={successMessage} />
+      <Notification type={"success"} message={notification} />
       <div>
         <p>
           {user.name} logged in
