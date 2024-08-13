@@ -7,24 +7,23 @@ import "./index.css";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
 import NotificationContext from "./contexts/NotificationContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const blogFormRef = useRef();
   const { notification, notificationDispatch } =
     useContext(NotificationContext);
-
-  useEffect(() => {
-    const getBlogsFromServer = async () => {
-      const blogs = await blogService.getAll();
-      setBlogs(blogs);
-    };
-
-    getBlogsFromServer();
-  }, []);
+  const queryClient = useQueryClient();
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: (newBlog) => {
+      const blogs = queryClient.getQueryData(["blogs"]);
+      queryClient.setQueryData(["blogs"], blogs.concat(newBlog));
+    },
+  });
 
   useEffect(() => {
     const setupLoggedInUser = async () => {
@@ -62,15 +61,14 @@ const App = () => {
     setUser(null);
   };
 
-  const addBlog = async (blog) => {
+  const addBlog = (blog) => {
     blogService.setToken(user.token);
     try {
-      const createdBlog = await blogService.create(blog);
+      newBlogMutation.mutate({ ...blog });
       blogFormRef.current.toggleVisibility();
-      setBlogs(blogs.concat(createdBlog));
       notificationDispatch({
         type: "SET",
-        payload: `a new blog ${createdBlog.title} by ${createdBlog.author} added`,
+        payload: `a new blog ${blog.title} by ${blog.author} added`,
       });
       setTimeout(() => {
         notificationDispatch({ type: "CLEAR" });
@@ -112,6 +110,17 @@ const App = () => {
       }
     }
   };
+
+  const result = useQuery({
+    queryKey: ["blogs"],
+    queryFn: blogService.getAll,
+  });
+
+  if (result.isLoading) {
+    return <div>loading data...</div>;
+  }
+
+  const blogs = result.data;
 
   if (user === null) {
     return (
