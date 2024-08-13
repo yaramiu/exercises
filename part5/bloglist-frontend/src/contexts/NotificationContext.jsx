@@ -6,8 +6,6 @@ const NotificationReducer = (state, action) => {
       return action.payload;
     case "CLEAR":
       return "";
-    default:
-      return state;
   }
 };
 

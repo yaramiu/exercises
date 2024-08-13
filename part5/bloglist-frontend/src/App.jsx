@@ -7,12 +7,12 @@ import "./index.css";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
 import NotificationContext from "./contexts/NotificationContext";
+import UserContext from "./contexts/UserContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
   const blogFormRef = useRef();
   const { notification, notificationDispatch } =
     useContext(NotificationContext);
@@ -45,17 +45,18 @@ const App = () => {
       );
     },
   });
+  const { user, userDispatch } = useContext(UserContext);
 
   useEffect(() => {
     const setupLoggedInUser = async () => {
       const loggedInUserJSON = window.localStorage.getItem("loggedInUser");
       if (loggedInUserJSON) {
-        setUser(JSON.parse(loggedInUserJSON));
+        userDispatch({ type: "SET", payload: JSON.parse(loggedInUserJSON) });
       }
     };
 
     setupLoggedInUser();
-  }, []);
+  }, [userDispatch]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -63,7 +64,7 @@ const App = () => {
     try {
       const loggedInUser = await loginService.login({ username, password });
       window.localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
-      setUser(loggedInUser);
+      userDispatch({ type: "SET", payload: loggedInUser });
       setUsername("");
       setPassword("");
     } catch (exception) {
@@ -79,7 +80,7 @@ const App = () => {
 
   const handleLogout = async () => {
     window.localStorage.removeItem("loggedInUser");
-    setUser(null);
+    userDispatch({ type: "REMOVE" });
   };
 
   const addBlog = (blog) => {
