@@ -1,50 +1,18 @@
-import { useState, useEffect, useRef, useContext } from "react";
-import Blog from "./components/Blog";
-import blogService from "./services/blogs";
+import { useState, useEffect, useContext } from "react";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
 import "./index.css";
-import BlogForm from "./components/BlogForm";
-import Togglable from "./components/Togglable";
 import NotificationContext from "./contexts/NotificationContext";
 import UserContext from "./contexts/UserContext";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Users from "./components/Users";
+import BlogList from "./components/BlogList";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const blogFormRef = useRef();
   const { notification, notificationDispatch } =
     useContext(NotificationContext);
-  const queryClient = useQueryClient();
-  const newBlogMutation = useMutation({
-    mutationFn: blogService.create,
-    onSuccess: (newBlog) => {
-      const blogs = queryClient.getQueryData(["blogs"]);
-      queryClient.setQueryData(["blogs"], blogs.concat(newBlog));
-    },
-  });
-  const updateBlogMutation = useMutation({
-    mutationFn: async ({ blog }) => await blogService.update(blog),
-    onSuccess: (updatedBlog, { userObject }) => {
-      const blogs = queryClient.getQueryData(["blogs"]);
-      updatedBlog = { ...updatedBlog, user: userObject };
-      const updatedBlogs = blogs.map((blog) =>
-        blog.id !== updatedBlog.id ? blog : updatedBlog
-      );
-      queryClient.setQueryData(["blogs"], updatedBlogs);
-    },
-  });
-  const removeBlogMutation = useMutation({
-    mutationFn: blogService.remove,
-    onSuccess: (data, id) => {
-      const blogs = queryClient.getQueryData(["blogs"]);
-      queryClient.setQueryData(
-        ["blogs"],
-        blogs.filter((blog) => blog.id != id)
-      );
-    },
-  });
   const { user, userDispatch } = useContext(UserContext);
 
   useEffect(() => {
@@ -83,49 +51,6 @@ const App = () => {
     userDispatch({ type: "REMOVE" });
   };
 
-  const addBlog = (blog) => {
-    blogService.setToken(user.token);
-    newBlogMutation.mutate({ ...blog });
-    blogFormRef.current.toggleVisibility();
-    notificationDispatch({
-      type: "SET",
-      payload: `a new blog ${blog.title} by ${blog.author} added`,
-    });
-    setTimeout(() => {
-      notificationDispatch({ type: "CLEAR" });
-    }, 5000);
-  };
-
-  const addLikes = async (blogToUpdate) => {
-    blogService.setToken(user.token);
-    updateBlogMutation.mutate({
-      blog: { ...blogToUpdate, likes: blogToUpdate.likes + 1 },
-      userObject: blogToUpdate.user,
-    });
-  };
-
-  const removeBlog = async (blogToRemove) => {
-    if (
-      window.confirm(
-        `Remove blog ${blogToRemove.title} by ${blogToRemove.author}`
-      )
-    ) {
-      blogService.setToken(user.token);
-      removeBlogMutation.mutate(blogToRemove.id);
-    }
-  };
-
-  const result = useQuery({
-    queryKey: ["blogs"],
-    queryFn: blogService.getAll,
-  });
-
-  if (result.isLoading) {
-    return <div>loading data...</div>;
-  }
-
-  const blogs = result.data;
-
   if (user === null) {
     return (
       <div>
@@ -163,28 +88,18 @@ const App = () => {
       <h2>blogs</h2>
       <Notification type={"success"} message={notification} />
       <div>
-        <p>
-          {user.name} logged in
-          <button type="button" onClick={handleLogout}>
-            logout
-          </button>
-        </p>
+        <p>{user.name} logged in</p>
+        <button type="button" onClick={handleLogout}>
+          logout
+        </button>
       </div>
-      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-        <h2>create new</h2>
-        <BlogForm createBlog={addBlog} />
-      </Togglable>
-      {blogs
-        .sort((a, b) => b.likes - a.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            addLikes={addLikes}
-            currentlyViewingUser={user}
-            remove={removeBlog}
-          />
-        ))}
+
+      <Router>
+        <Routes>
+          <Route path="/" element={<BlogList />} />
+          <Route path="/users" element={<Users />} />
+        </Routes>
+      </Router>
     </div>
   );
 };
