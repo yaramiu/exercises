@@ -24,6 +24,27 @@ const App = () => {
       queryClient.setQueryData(["blogs"], blogs.concat(newBlog));
     },
   });
+  const updateBlogMutation = useMutation({
+    mutationFn: async ({ blog }) => await blogService.update(blog),
+    onSuccess: (updatedBlog, { userObject }) => {
+      const blogs = queryClient.getQueryData(["blogs"]);
+      updatedBlog = { ...updatedBlog, user: userObject };
+      const updatedBlogs = blogs.map((blog) =>
+        blog.id !== updatedBlog.id ? blog : updatedBlog
+      );
+      queryClient.setQueryData(["blogs"], updatedBlogs);
+    },
+  });
+  const removeBlogMutation = useMutation({
+    mutationFn: blogService.remove,
+    onSuccess: (data, id) => {
+      const blogs = queryClient.getQueryData(["blogs"]);
+      queryClient.setQueryData(
+        ["blogs"],
+        blogs.filter((blog) => blog.id != id)
+      );
+    },
+  });
 
   useEffect(() => {
     const setupLoggedInUser = async () => {
@@ -63,36 +84,23 @@ const App = () => {
 
   const addBlog = (blog) => {
     blogService.setToken(user.token);
-    try {
-      newBlogMutation.mutate({ ...blog });
-      blogFormRef.current.toggleVisibility();
-      notificationDispatch({
-        type: "SET",
-        payload: `a new blog ${blog.title} by ${blog.author} added`,
-      });
-      setTimeout(() => {
-        notificationDispatch({ type: "CLEAR" });
-      }, 5000);
-    } catch (exception) {
-      console.error(exception);
-    }
+    newBlogMutation.mutate({ ...blog });
+    blogFormRef.current.toggleVisibility();
+    notificationDispatch({
+      type: "SET",
+      payload: `a new blog ${blog.title} by ${blog.author} added`,
+    });
+    setTimeout(() => {
+      notificationDispatch({ type: "CLEAR" });
+    }, 5000);
   };
 
   const addLikes = async (blogToUpdate) => {
     blogService.setToken(user.token);
-    const blogRequestData = {
-      ...blogToUpdate,
-      likes: blogToUpdate.likes + 1,
-    };
-    try {
-      let updatedBlog = await blogService.update(blogRequestData);
-      updatedBlog = { ...updatedBlog, user: blogToUpdate.user };
-      setBlogs(
-        blogs.map((blog) => (blog.id === blogToUpdate.id ? updatedBlog : blog))
-      );
-    } catch (exception) {
-      console.error(exception);
-    }
+    updateBlogMutation.mutate({
+      blog: { ...blogToUpdate, likes: blogToUpdate.likes + 1 },
+      userObject: blogToUpdate.user,
+    });
   };
 
   const removeBlog = async (blogToRemove) => {
@@ -102,12 +110,7 @@ const App = () => {
       )
     ) {
       blogService.setToken(user.token);
-      try {
-        await blogService.remove(blogToRemove.id);
-        setBlogs(blogs.filter((blog) => blog.id != blogToRemove.id));
-      } catch (exception) {
-        console.error(exception);
-      }
+      removeBlogMutation.mutate(blogToRemove.id);
     }
   };
 
