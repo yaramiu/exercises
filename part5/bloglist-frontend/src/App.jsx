@@ -1,12 +1,15 @@
 import { useState, useEffect, useContext } from "react";
 import loginService from "./services/login";
+import userService from "./services/users";
 import Notification from "./components/Notification";
 import "./index.css";
 import NotificationContext from "./contexts/NotificationContext";
 import UserContext from "./contexts/UserContext";
 import Users from "./components/Users";
+import User from "./components/User";
 import BlogList from "./components/BlogList";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, useMatch } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -51,6 +54,20 @@ const App = () => {
     userDispatch({ type: "REMOVE" });
   };
 
+  const result = useQuery({
+    queryKey: ["users"],
+    queryFn: userService.getAll,
+  });
+
+  const users = result.data;
+
+  const match = useMatch("/users/:id");
+  const clickedUser =
+    match && users ? users.find((user) => user.id === match.params.id) : null;
+
+  if (result.isLoading) return <div>loading data...</div>;
+  if (result.isError) return <div>error fetching data from server</div>;
+
   if (user === null) {
     return (
       <div>
@@ -94,12 +111,11 @@ const App = () => {
         </button>
       </div>
 
-      <Router>
-        <Routes>
-          <Route path="/" element={<BlogList />} />
-          <Route path="/users" element={<Users />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" element={<BlogList />} />
+        <Route path="/users" element={<Users users={users} />} />
+        <Route path="/users/:id" element={<User user={clickedUser} />} />
+      </Routes>
     </div>
   );
 };
