@@ -1,9 +1,41 @@
 import { Link } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import blogService from "../services/blogs";
 
 const Comments = ({ blog }) => {
+  const [comment, setComment] = useState("");
+  const queryClient = useQueryClient();
+  const newCommentMutation = useMutation({
+    mutationFn: async ({ blogId, comment }) =>
+      await blogService.createComment(blogId, comment),
+    onSuccess: (updatedBlog, { blogId }) => {
+      const blogs = queryClient.getQueryData(["blogs"]);
+      const updatedBlogs = blogs.map((blog) =>
+        blog.id !== blogId ? blog : updatedBlog
+      );
+      queryClient.setQueryData(["blogs"], updatedBlogs);
+      blog.comments = updatedBlog.comments;
+    },
+  });
+
+  const handleCreateComment = (event) => {
+    event.preventDefault();
+    newCommentMutation.mutate({ blogId: blog.id, comment });
+    setComment("");
+  };
+
   return (
     <div>
       <h3>comments</h3>
+      <form onSubmit={handleCreateComment}>
+        <input
+          className="comment-box"
+          value={comment}
+          onChange={(event) => setComment(event.target.value)}
+        />
+        <button type="submit">add comment</button>
+      </form>
       <ul>
         {blog.comments.map((comment) => (
           <li key={comment.id}>{comment.content}</li>
