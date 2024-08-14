@@ -16,10 +16,45 @@
   color: green;
 }
 
-.container {
+.nav-bar {
   background-color: #d3d3d3;
+}
+
+.nav-bar,
+.app-title {
+  margin-bottom: 1.5rem;
+}
+
+.create-new-blog {
+  margin-bottom: 1rem;
 }
 
 .comment-box {
   width: 7.25rem;
+}
+
+a:link,
+a:visited {
+  color: purple;
+}
+
+.login-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  row-gap: 1rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5rem;
+}
+
+.field-container {
+  display: flex;
+  justify-content: flex-end;
+  column-gap: 1rem;
 }

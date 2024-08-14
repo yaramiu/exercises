@@ -11,6 +11,7 @@ import BlogList from "./components/BlogList";
 import Blog from "./components/Blog";
 import { Routes, Route, useMatch, Link } from "react-router-dom";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
+import Button from "react-bootstrap/Button";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -112,11 +113,11 @@ const App = () => {
 
   if (user === null) {
     return (
-      <div>
+      <div className="container login-screen">
         <h2>log in to application</h2>
         <Notification type={"error"} message={notification} />
-        <form onSubmit={handleLogin}>
-          <div>
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="field-container">
             username
             <input
               data-testid="username"
@@ -126,7 +127,7 @@ const App = () => {
               onChange={({ target }) => setUsername(target.value)}
             />
           </div>
-          <div>
+          <div className="field-container">
             password
             <input
               data-testid="password"
@@ -136,25 +137,29 @@ const App = () => {
               onChange={({ target }) => setPassword(target.value)}
             />
           </div>
-          <button type="submit">login</button>
+          <Button type="submit">login</Button>
         </form>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="container">
+    <div className="container">
+      <div className="nav-bar">
         <Link to={"/blogs"}>blogs</Link> <Link to={"/users"}>users</Link>{" "}
         {user.name} logged in{" "}
-        <button type="button" onClick={handleLogout}>
+        <Button type="button" onClick={handleLogout}>
           logout
-        </button>
+        </Button>
       </div>
-      <h2>blog app</h2>
+      <h2 className="app-title">blog app</h2>
       <Notification type={"success"} message={notification} />
 
       <Routes>
+        <Route
+          path="/"
+          element={<BlogList addLikes={addLikes} removeBlog={removeBlog} />}
+        />
         <Route
           path="/blogs"
           element={<BlogList addLikes={addLikes} removeBlog={removeBlog} />}

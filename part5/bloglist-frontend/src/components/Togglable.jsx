@@ -1,5 +1,6 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
+import Button from "react-bootstrap/Button";
 
 const Togglable = forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false);
@@ -18,7 +19,9 @@ const Togglable = forwardRef((props, ref) => {
   return (
     <div>
       <div style={hideIfVisible}>
-        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+        <Button className="create-new-blog" onClick={toggleVisibility}>
+          {props.buttonLabel}
+        </Button>
       </div>
       <div style={showIfVisible}>
         {props.children}
