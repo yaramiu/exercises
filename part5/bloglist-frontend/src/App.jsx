@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from "react";
 import loginService from "./services/login";
-import userService from "./services/users";
 import blogService from "./services/blogs";
 import Notification from "./components/Notification";
 import "./index.css";
@@ -10,8 +9,8 @@ import Users from "./components/Users";
 import User from "./components/User";
 import BlogList from "./components/BlogList";
 import Blog from "./components/Blog";
-import { Routes, Route, useMatch } from "react-router-dom";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { Routes, Route, useMatch, Link } from "react-router-dom";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -97,35 +96,19 @@ const App = () => {
     userDispatch({ type: "REMOVE" });
   };
 
-  const result = useQuery({
-    queryKey: ["users"],
-    queryFn: userService.getAll,
-  });
-
-  const users = result.data;
-
-  const match = useMatch("/users/:id");
+  const userMatch = useMatch("/users/:id");
+  const users = queryClient.getQueryData(["users"]);
   const clickedUser =
-    match && users ? users.find((user) => user.id === match.params.id) : null;
-
-  const blogsResult = useQuery({
-    queryKey: ["blogs"],
-    queryFn: blogService.getAll,
-  });
-
-  const blogs = blogsResult.data;
+    userMatch && users
+      ? users.find((user) => user.id === userMatch.params.id)
+      : null;
 
   const blogMatch = useMatch("/blogs/:id");
+  const blogs = queryClient.getQueryData(["blogs"]);
   const clickedBlog =
     blogMatch && blogs
       ? blogs.find((blog) => blog.id === blogMatch.params.id)
       : null;
-
-  if (result.isLoading) return <div>loading data...</div>;
-  if (result.isError) return <div>error fetching data from server</div>;
-
-  if (blogsResult.isLoading) return <div>loading blogs...</div>;
-  if (blogsResult.isError) return <div>error fetching data from blogs</div>;
 
   if (user === null) {
     return (
@@ -161,25 +144,20 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
-      <Notification type={"success"} message={notification} />
-      <div>
-        <p>{user.name} logged in</p>
+      <div className="container">
+        <Link to={"/blogs"}>blogs</Link> <Link to={"/users"}>users</Link>{" "}
+        {user.name} logged in{" "}
         <button type="button" onClick={handleLogout}>
           logout
         </button>
       </div>
+      <h2>blog app</h2>
+      <Notification type={"success"} message={notification} />
 
       <Routes>
         <Route
           path="/blogs"
-          element={
-            <BlogList
-              blogs={blogs}
-              addLikes={addLikes}
-              removeBlog={removeBlog}
-            />
-          }
+          element={<BlogList addLikes={addLikes} removeBlog={removeBlog} />}
         />
         <Route
           path="/blogs/:id"
@@ -193,7 +171,7 @@ const App = () => {
             />
           }
         />
-        <Route path="/users" element={<Users users={users} />} />
+        <Route path="/users" element={<Users />} />
         <Route path="/users/:id" element={<User user={clickedUser} />} />
       </Routes>
     </div>
