@@ -1,8 +1,6 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
 
-const Blog = ({ blog, addLikes, currentlyViewingUser, remove }) => {
-  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
-
+const Blog = ({ blog, addLikes, currentlyViewingUser, remove, isClicked }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -16,20 +14,18 @@ const Blog = ({ blog, addLikes, currentlyViewingUser, remove }) => {
   };
 
   return (
-    <div data-testid="blog" style={blogStyle}>
-      <div>
-        {blog.title} {blog.author}{" "}
-        <button onClick={() => setIsDetailsVisible(!isDetailsVisible)}>
-          {isDetailsVisible ? "hide" : "view"}
-        </button>
-      </div>
-      {isDetailsVisible ? (
+    <div data-testid="blog">
+      {isClicked ? (
         <div>
+          <h2>
+            {blog.title} {blog.author}
+          </h2>
           <div>
-            {blog.url} <br />
-            likes <span data-testid="current-likes">{blog.likes}</span>
+            <a href={`${blog.url}`}>{blog.url}</a>
+            <br />
+            {blog.likes} likes<span data-testid="current-likes"></span>
             <button onClick={() => addLikes(blog)}>like</button> <br />
-            {blog.user.name}
+            added by {blog.user.name}
           </div>
           <div>
             {blog.user.name === currentlyViewingUser.name ? (
@@ -39,7 +35,13 @@ const Blog = ({ blog, addLikes, currentlyViewingUser, remove }) => {
             ) : null}
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div style={blogStyle}>
+          <Link to={`/blogs/${blog.id}`}>
+            {blog.title} {blog.author}{" "}
+          </Link>
+        </div>
+      )}
     </div>
   );
 };
