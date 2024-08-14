@@ -18,6 +18,12 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  comments: [
+    {
+      content: String,
+      id: mongoose.Types.ObjectId,
+    },
+  ],
 });
 
 blogSchema.set("toJSON", {
@@ -25,6 +31,12 @@ blogSchema.set("toJSON", {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
     delete returnedObject.__v;
+    if (returnedObject.comments) {
+      returnedObject.comments.forEach((comment) => {
+        comment.id = comment._id.toString();
+        delete comment._id;
+      });
+    }
   },
 });
 
