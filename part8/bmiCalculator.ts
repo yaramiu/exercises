@@ -18,7 +18,10 @@ const verifyArguments = (args: string[]): void => {
     throw new Error("weight in kg argument is not a number");
 };
 
-const calculateBmi = (heightInCm: number, weightInKg: number): bmiCategory => {
+export const calculateBmi = (
+  heightInCm: number,
+  weightInKg: number
+): bmiCategory => {
   const bmi: number = weightInKg / (heightInCm / 100) ** 2;
 
   if (bmi < 16.0) {
@@ -40,11 +43,13 @@ const calculateBmi = (heightInCm: number, weightInKg: number): bmiCategory => {
   }
 };
 
-try {
-  verifyArguments(process.argv);
-  console.log(calculateBmi(Number(process.argv[2]), Number(process.argv[3])));
-} catch (error: unknown) {
-  if (error instanceof Error) {
-    console.error("Error: " + error.message);
+if (require.main === module) {
+  try {
+    verifyArguments(process.argv);
+    console.log(calculateBmi(Number(process.argv[2]), Number(process.argv[3])));
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error: " + error.message);
+    }
   }
 }
