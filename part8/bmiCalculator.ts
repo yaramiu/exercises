@@ -8,6 +8,16 @@ type bmiCategory =
   | "Obese (Class II)"
   | "Obese (Class III)";
 
+const verifyArguments = (args: string[]): void => {
+  if (args.length < 4) throw new Error("not enough arguments");
+  else if (args.length > 4) throw new Error("too many arguments");
+
+  if (isNaN(Number(args[2])))
+    throw new Error("height in cm argument is not a number");
+  if (isNaN(Number(args[3])))
+    throw new Error("weight in kg argument is not a number");
+};
+
 const calculateBmi = (heightInCm: number, weightInKg: number): bmiCategory => {
   const bmi: number = weightInKg / (heightInCm / 100) ** 2;
 
@@ -30,4 +40,11 @@ const calculateBmi = (heightInCm: number, weightInKg: number): bmiCategory => {
   }
 };
 
-console.log(calculateBmi(180, 74));
+try {
+  verifyArguments(process.argv);
+  console.log(calculateBmi(Number(process.argv[2]), Number(process.argv[3])));
+} catch (error: unknown) {
+  if (error instanceof Error) {
+    console.error("Error: " + error.message);
+  }
+}
