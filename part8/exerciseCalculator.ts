@@ -8,8 +8,8 @@ interface Result {
   periodLength: number;
   trainingDays: number;
   success: boolean;
-  rating: Ratings;
-  ratingDescription: RatingDescriptions;
+  rating: Ratings | undefined;
+  ratingDescription: RatingDescriptions | undefined;
   target: number;
   average: number;
 }
@@ -61,7 +61,7 @@ const calculateExercises = (
 
   const success: boolean = average >= target;
 
-  let rating: Ratings;
+  let rating: Ratings | undefined;
   if (average / target < 0.5) {
     rating = 1;
   } else if (average / target > 0.5 && average / target < 1) {
@@ -70,7 +70,7 @@ const calculateExercises = (
     rating = 3;
   }
 
-  let ratingDescription: RatingDescriptions;
+  let ratingDescription: RatingDescriptions | undefined;
   if (rating === 1) {
     ratingDescription = "bad, not close to target";
   } else if (rating === 2) {

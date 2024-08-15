@@ -35,7 +35,7 @@ const calculateBmi = (heightInCm: number, weightInKg: number): bmiCategory => {
     return "Obese (Class I)";
   } else if (bmi >= 35.0 && bmi <= 39.9) {
     return "Obese (Class II)";
-  } else if (bmi >= 40.0) {
+  } else {
     return "Obese (Class III)";
   }
 };
