@@ -22,7 +22,7 @@ export const calculateBmi = (
   heightInCm: number,
   weightInKg: number
 ): bmiCategory => {
-  const bmi: number = weightInKg / (heightInCm / 100) ** 2;
+  const bmi = weightInKg / (heightInCm / 100) ** 2;
 
   if (bmi < 16.0) {
     return "Underweight (Severe thinness)";
