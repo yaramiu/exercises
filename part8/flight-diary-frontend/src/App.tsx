@@ -1,18 +1,10 @@
 import { useEffect, useState } from "react";
 
-import { NonSensitiveDiaryEntry } from "./types";
-import { getAllDiaries } from "./diaryService";
+import { NonSensitiveDiaryEntry, NewDiaryEntry } from "./types";
+import { getAllDiaries, createDiary } from "./diaryService";
+import Diary from "./components/Diary";
+import DiaryForm from "./components/DiaryForm";
 import "./index.css";
-
-const Diary = ({ diary }: { diary: NonSensitiveDiaryEntry }) => {
-  return (
-    <div>
-      <h3>{diary.date}</h3>
-      <p>visibility: {diary.visibility}</p>
-      <p>weather: {diary.weather}</p>
-    </div>
-  );
-};
 
 const App = () => {
   const [diaries, setDiaries] = useState<NonSensitiveDiaryEntry[]>([]);
@@ -26,9 +18,15 @@ const App = () => {
     getDiariesFromServer();
   }, []);
 
+  const addDiary = async (diary: NewDiaryEntry) => {
+    const createdDiary = await createDiary(diary);
+    setDiaries(diaries.concat(createdDiary));
+  };
+
   return (
     <div>
-      <h2>Diary entries</h2>
+      <DiaryForm addDiary={addDiary} />
+      <h3>Diary entries</h3>
       {diaries.map((diary) => (
         <Diary key={diary.id} diary={diary} />
       ))}
