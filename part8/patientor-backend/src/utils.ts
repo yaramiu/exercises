@@ -19,6 +19,7 @@ export const toNewPatientEntry = (object: unknown): NewPatientEntry => {
       ssn: parseSSN(ssn),
       gender: parseGender(gender),
       occupation: parseOccupation(occupation),
+      entries: [],
     };
   }
 
@@ -60,7 +61,7 @@ const isGender = (gender: string): gender is Gender => {
     .includes(gender);
 };
 
-const parseGender = (gender: unknown): Gender => {
+export const parseGender = (gender: unknown): Gender => {
   if (!isString(gender) || !isGender(gender)) {
     throw new Error("Incorrect gender: " + gender);
   }
