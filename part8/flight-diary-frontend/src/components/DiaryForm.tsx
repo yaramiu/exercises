@@ -20,11 +20,18 @@ const DiaryForm = ({
     setVisibility("");
     setWeather("");
     setComment("");
+
+    const radioButtons =
+      document.querySelectorAll<HTMLInputElement>("input[type=radio]");
+    radioButtons.forEach((radioButton) => {
+      if (radioButton.type === "radio") {
+        radioButton.checked = false;
+      }
+    });
   };
 
   const handleDiaryCreation = async (event: React.SyntheticEvent) => {
     event.preventDefault();
-
     try {
       await addDiary({
         date,
@@ -49,23 +56,70 @@ const DiaryForm = ({
         <div>
           date{" "}
           <input
+            type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
           />
         </div>
         <div>
-          visibility{" "}
+          visibility
           <input
-            value={visibility}
-            onChange={(event) => setVisibility(event.target.value)}
+            type="radio"
+            name="visibility"
+            onChange={() => setVisibility("great")}
           />
+          <label htmlFor="visibility">great</label>
+          <input
+            type="radio"
+            name="visibility"
+            onChange={() => setVisibility("good")}
+          />
+          <label htmlFor="visibility">good</label>
+          <input
+            type="radio"
+            name="visibility"
+            onChange={() => setVisibility("ok")}
+          />
+          <label htmlFor="visibility">ok</label>
+          <input
+            type="radio"
+            name="visibility"
+            onChange={() => setVisibility("poor")}
+          />
+          <label htmlFor="visibility">poor</label>
         </div>
         <div>
           weather{" "}
           <input
-            value={weather}
-            onChange={(event) => setWeather(event.target.value)}
+            type="radio"
+            name="weather"
+            onChange={() => setWeather("sunny")}
           />
+          <label htmlFor="weather">sunny</label>
+          <input
+            type="radio"
+            name="weather"
+            onChange={() => setWeather("rainy")}
+          />
+          <label htmlFor="weather">rainy</label>
+          <input
+            type="radio"
+            name="weather"
+            onChange={() => setWeather("cloudy")}
+          />
+          <label htmlFor="weather">cloudy</label>
+          <input
+            type="radio"
+            name="weather"
+            onChange={() => setWeather("stormy")}
+          />
+          <label htmlFor="weather">stormy</label>
+          <input
+            type="radio"
+            name="weather"
+            onChange={() => setWeather("windy")}
+          />
+          <label htmlFor="weather">windy</label>
         </div>
         <div>
           comment{" "}
