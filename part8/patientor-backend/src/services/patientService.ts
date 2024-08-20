@@ -2,14 +2,14 @@ import { v4 as uuid } from "uuid";
 
 import patients from "../../data/patients";
 import { NewPatientEntry, NonSensitivePatient, Patient } from "../types";
-import { parseGender } from "../utils";
+import { isValidEntries } from "../utils";
 
 const getEntries = (): NonSensitivePatient[] => {
   return patients.map(({ id, name, dateOfBirth, gender, occupation }) => ({
     id,
     name,
     dateOfBirth,
-    gender: parseGender(gender),
+    gender,
     occupation,
   }));
 };
@@ -18,16 +18,20 @@ const getPatientEntry = (patientId: string): Patient | undefined => {
   const foundPatient = patients.find((patient) => patient.id === patientId);
 
   if (foundPatient) {
-    const { id, name, dateOfBirth, ssn, gender, occupation } = foundPatient;
-    return {
-      id,
-      name,
-      dateOfBirth,
-      ssn,
-      gender: parseGender(gender),
-      occupation,
-      entries: [],
-    };
+    const { id, name, dateOfBirth, ssn, gender, occupation, entries } =
+      foundPatient;
+
+    if (isValidEntries(entries)) {
+      return {
+        id,
+        name,
+        dateOfBirth,
+        ssn,
+        gender,
+        occupation,
+        entries,
+      };
+    }
   }
   return;
 };

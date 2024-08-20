@@ -1,4 +1,4 @@
-import { NewPatientEntry, Gender } from "./types";
+import { NewPatientEntry, Gender, Entry } from "./types";
 
 export const toNewPatientEntry = (object: unknown): NewPatientEntry => {
   if (!object || typeof object !== "object") {
@@ -61,7 +61,7 @@ const isGender = (gender: string): gender is Gender => {
     .includes(gender);
 };
 
-export const parseGender = (gender: unknown): Gender => {
+const parseGender = (gender: unknown): Gender => {
   if (!isString(gender) || !isGender(gender)) {
     throw new Error("Incorrect gender: " + gender);
   }
@@ -73,4 +73,14 @@ const parseOccupation = (occupation: unknown): string => {
     throw new Error("Incorrect occupation: " + occupation);
   }
   return occupation;
+};
+
+export const isValidEntries = (entries: Entry[]): entries is Entry[] => {
+  const entryTypes = ["Hospital", "OccupationalHealthcare", "HealthCheck"];
+  for (const entry of entries) {
+    if (!entryTypes.includes(entry.type)) {
+      return false;
+    }
+  }
+  return true;
 };
