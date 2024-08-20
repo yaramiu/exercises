@@ -56,7 +56,7 @@ export type Entry =
   | OccupationalHealthcareEntry
   | HealthCheckEntry;
 
-export type Patient = {
+export interface Patient {
   id: string;
   name: string;
   dateOfBirth: string;
@@ -64,7 +64,7 @@ export type Patient = {
   gender: Gender;
   occupation: string;
   entries: Entry[];
-};
+}
 
 export type NonSensitivePatient = Omit<Patient, "ssn" | "entries">;
 
