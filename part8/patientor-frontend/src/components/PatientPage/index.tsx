@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { Typography } from "@mui/material";
+import { Typography, Button } from "@mui/material";
 
 import { Patient } from "../../types";
 import patientService from "../../services/patients";
 import GenderIcon from "./GenderIcon";
-import PatientEntry from "./PatientEntry";
+import Entry from "./Entry";
 
 interface Props {
   patient: Patient;
@@ -32,6 +32,14 @@ const PatientPage = ({ patient }: Props) => {
     margin: 0,
   };
 
+  const entryStyling = {
+    marginTop: "0.75rem",
+    marginBottom: "0.75rem",
+    border: "2px solid",
+    borderRadius: "10px",
+    paddingLeft: "0.25rem",
+  };
+
   return (
     <div>
       <Typography variant="h5" style={headerStyling}>
@@ -48,9 +56,14 @@ const PatientPage = ({ patient }: Props) => {
       </Typography>
       {patientInfo.entries
         ? patientInfo.entries.map((entry) => (
-            <PatientEntry key={entry.id} entry={entry} />
+            <div key={entry.id} style={entryStyling}>
+              <Entry entry={entry} />
+            </div>
           ))
         : null}
+      <Button variant="contained" sx={{ marginTop: "0.5rem" }}>
+        Add New Entry
+      </Button>
     </div>
   );
 };
