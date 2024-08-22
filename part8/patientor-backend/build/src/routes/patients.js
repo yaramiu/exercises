@@ -10,6 +10,14 @@ const router = express_1.default.Router();
 router.get("/", (_request, response) => {
     response.json(patientService_1.default.getEntries());
 });
+router.get("/:id", (request, response) => {
+    const id = request.params.id;
+    const foundPatient = patientService_1.default.getPatientEntry(id);
+    if (foundPatient) {
+        return response.json(foundPatient);
+    }
+    return response.status(404).end();
+});
 router.post("/", (request, response) => {
     try {
         const newPatientEntry = (0, utils_1.toNewPatientEntry)(request.body);
@@ -21,5 +29,21 @@ router.post("/", (request, response) => {
             response.status(400).send("Error: " + error.message);
         }
     }
+});
+router.post("/:id/entries", (request, response) => {
+    const id = request.params.id;
+    try {
+        const patientEntry = (0, utils_1.toPatientEntry)(request.body);
+        const updatedPatient = patientService_1.default.updatePatientEntry(id, patientEntry);
+        if (updatedPatient) {
+            return response.json(updatedPatient);
+        }
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            return response.status(400).send("Error: " + error.message);
+        }
+    }
+    return response.status(404).end();
 });
 exports.default = router;

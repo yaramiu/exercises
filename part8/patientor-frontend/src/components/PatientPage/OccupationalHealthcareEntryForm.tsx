@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -7,11 +7,18 @@ import {
   ThemeProvider,
   Alert,
   InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  SelectChangeEvent,
+  Input,
 } from "@mui/material";
 import axios from "axios";
 
 import patientService from "../../services/patients";
-import { Patient } from "../../types";
+import diagnosisService from "../../services/diagnoses";
+import { Diagnosis, Patient } from "../../types";
 
 interface Props {
   patientId: string;
@@ -38,11 +45,25 @@ const OccupationalHealthcareEntryForm = ({
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [specialist, setSpecialist] = useState("");
-  const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
+  const [diagnosisCodes, setDiagnosisCodes] = useState<
+    Array<Diagnosis["code"]>
+  >([]);
   const [employerName, setEmployerName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [allDiagnosisCodes, setAllDiagnosisCodes] = useState<
+    Array<Diagnosis["code"]>
+  >([]);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const getAllDiagnosisCodes = async () => {
+      const diagnoses = await diagnosisService.getAll();
+      setAllDiagnosisCodes(diagnoses.map((diagnosis) => diagnosis.code));
+    };
+
+    getAllDiagnosisCodes();
+  });
 
   const clearFormFields = () => {
     setDescription("");
@@ -85,6 +106,15 @@ const OccupationalHealthcareEntryForm = ({
     }
   };
 
+  const handleDiagnosisCodeUpdate = (
+    event: SelectChangeEvent<typeof diagnosisCodes>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    setDiagnosisCodes(typeof value === "string" ? value.split(",") : value);
+  };
+
   const formStyling = {
     border: "2px dotted",
     padding: "1rem",
@@ -96,10 +126,6 @@ const OccupationalHealthcareEntryForm = ({
     justifyContent: "space-between",
     marginTop: "1rem",
     marginBottom: "0",
-  };
-
-  const dateFieldStyling = {
-    marginLeft: "0.5rem",
   };
 
   return (
@@ -124,13 +150,11 @@ const OccupationalHealthcareEntryForm = ({
             />
           </div>
           <div>
-            <TextField
-              variant="standard"
-              id="date"
-              label="Date"
-              value={date}
-              fullWidth
+            <InputLabel>Date</InputLabel>
+            <Input
+              type="date"
               onChange={(event) => setDate(event.target.value)}
+              fullWidth
             />
           </div>
           <div>
@@ -144,16 +168,25 @@ const OccupationalHealthcareEntryForm = ({
             />
           </div>
           <div>
-            <TextField
-              variant="standard"
+            <InputLabel id="diagnosis-codes">Diagnosis codes</InputLabel>
+            <Select
+              labelId="diagnosis-codes"
               id="diagnosis-codes"
-              label="Diagnosis codes"
+              multiple
               value={diagnosisCodes}
+              onChange={handleDiagnosisCodeUpdate}
+              renderValue={(selected) => selected.join(", ")}
               fullWidth
-              onChange={(event) =>
-                setDiagnosisCodes(event.target.value.split(","))
-              }
-            />
+            >
+              {allDiagnosisCodes.map((diagnosisCode) => (
+                <MenuItem key={diagnosisCode} value={diagnosisCode}>
+                  <Checkbox
+                    checked={diagnosisCodes.indexOf(diagnosisCode) > -1}
+                  />
+                  <ListItemText primary={diagnosisCode} />
+                </MenuItem>
+              ))}
+            </Select>
           </div>
           <div>
             <TextField
@@ -165,27 +198,23 @@ const OccupationalHealthcareEntryForm = ({
               onChange={(event) => setEmployerName(event.target.value)}
             />
           </div>
-          <InputLabel style={{ marginTop: "2rem" }}>Sick leave</InputLabel>
+          <InputLabel style={{ marginTop: "2rem", marginBottom: "0.5rem" }}>
+            Sick leave
+          </InputLabel>
           <div>
-            <TextField
-              variant="standard"
-              id="start-date"
-              label="Start date"
-              value={startDate}
-              style={dateFieldStyling}
-              fullWidth
+            <InputLabel>start</InputLabel>
+            <Input
+              type="date"
               onChange={(event) => setStartDate(event.target.value)}
+              fullWidth
             />
           </div>
           <div>
-            <TextField
-              variant="standard"
-              id="end-date"
-              label="End date"
-              value={endDate}
-              style={dateFieldStyling}
-              fullWidth
+            <InputLabel>end</InputLabel>
+            <Input
+              type="date"
               onChange={(event) => setEndDate(event.target.value)}
+              fullWidth
             />
           </div>
           <ThemeProvider theme={theme}>

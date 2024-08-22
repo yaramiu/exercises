@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -6,11 +6,19 @@ import {
   createTheme,
   ThemeProvider,
   Alert,
+  Input,
+  InputLabel,
+  Select,
+  MenuItem,
+  Checkbox,
+  SelectChangeEvent,
+  ListItemText,
 } from "@mui/material";
 import axios from "axios";
 
 import patientService from "../../services/patients";
-import { Patient } from "../../types";
+import diagnosisService from "../../services/diagnoses";
+import { Diagnosis, Patient } from "../../types";
 
 interface Props {
   patientId: string;
@@ -37,9 +45,23 @@ const HealthCheckEntryForm = ({
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
   const [specialist, setSpecialist] = useState("");
-  const [healthCheckRating, setHealthCheckRating] = useState("");
-  const [diagnosisCodes, setDiagnosisCodes] = useState<string[]>([]);
+  const [healthCheckRating, setHealthCheckRating] = useState("0");
+  const [diagnosisCodes, setDiagnosisCodes] = useState<
+    Array<Diagnosis["code"]>
+  >([]);
+  const [allDiagnosisCodes, setAllDiagnosisCodes] = useState<
+    Array<Diagnosis["code"]>
+  >([]);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    const getAllDiagnosisCodes = async () => {
+      const diagnoses = await diagnosisService.getAll();
+      setAllDiagnosisCodes(diagnoses.map((diagnosis) => diagnosis.code));
+    };
+
+    getAllDiagnosisCodes();
+  });
 
   const clearFormFields = () => {
     setDescription("");
@@ -74,6 +96,15 @@ const HealthCheckEntryForm = ({
         setTimeout(() => setErrorMessage(""), 5000);
       }
     }
+  };
+
+  const handleDiagnosisCodeUpdate = (
+    event: SelectChangeEvent<typeof diagnosisCodes>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    setDiagnosisCodes(typeof value === "string" ? value.split(",") : value);
   };
 
   const formStyling = {
@@ -111,13 +142,11 @@ const HealthCheckEntryForm = ({
             />
           </div>
           <div>
-            <TextField
-              variant="standard"
-              id="date"
-              label="Date"
-              value={date}
-              fullWidth
+            <InputLabel>Date</InputLabel>
+            <Input
+              type="date"
               onChange={(event) => setDate(event.target.value)}
+              fullWidth
             />
           </div>
           <div>
@@ -131,26 +160,46 @@ const HealthCheckEntryForm = ({
             />
           </div>
           <div>
-            <TextField
-              variant="standard"
+            <InputLabel id="health-check-rating">
+              Health check rating
+            </InputLabel>
+            <Select
+              labelId="health-check-rating"
               id="health-check-rating"
-              label="Healthcheck rating"
               value={healthCheckRating}
+              onChange={(event) => {
+                console.log(event.target.value);
+                setHealthCheckRating(event.target.value);
+              }}
+              defaultValue="0"
               fullWidth
-              onChange={(event) => setHealthCheckRating(event.target.value)}
-            />
+            >
+              <MenuItem value={"0"}>0</MenuItem>
+              <MenuItem value={"1"}>1</MenuItem>
+              <MenuItem value={"2"}>2</MenuItem>
+              <MenuItem value={"3"}>3</MenuItem>
+            </Select>
           </div>
           <div>
-            <TextField
-              variant="standard"
+            <InputLabel id="diagnosis-codes">Diagnosis codes</InputLabel>
+            <Select
+              labelId="diagnosis-codes"
               id="diagnosis-codes"
-              label="Diagnosis codes"
+              multiple
               value={diagnosisCodes}
+              onChange={handleDiagnosisCodeUpdate}
+              renderValue={(selected) => selected.join(", ")}
               fullWidth
-              onChange={(event) =>
-                setDiagnosisCodes(event.target.value.split(","))
-              }
-            />
+            >
+              {allDiagnosisCodes.map((diagnosisCode) => (
+                <MenuItem key={diagnosisCode} value={diagnosisCode}>
+                  <Checkbox
+                    checked={diagnosisCodes.indexOf(diagnosisCode) > -1}
+                  />
+                  <ListItemText primary={diagnosisCode} />
+                </MenuItem>
+              ))}
+            </Select>
           </div>
           <ThemeProvider theme={theme}>
             <div style={buttonContainerStyling}>
