@@ -1,11 +1,19 @@
 import { useState, useEffect } from "react";
-import { Typography, Button } from "@mui/material";
+import {
+  Typography,
+  Button,
+  Select,
+  MenuItem,
+  InputLabel,
+} from "@mui/material";
 
 import { Patient } from "../../types";
 import patientService from "../../services/patients";
 import GenderIcon from "./GenderIcon";
 import Entry from "./Entry";
 import HealthCheckEntryForm from "./HealthCheckEntryForm";
+import OccupationalHealthcareEntryForm from "./OccupationalHealthcareEntryForm";
+import HospitalEntryForm from "./HospitalEntryForm";
 
 interface Props {
   patient: Patient;
@@ -14,6 +22,7 @@ interface Props {
 const PatientPage = ({ patient }: Props) => {
   const [patientInfo, setPatientInfo] = useState<Patient>(patient);
   const [isEntryFormVisible, setIsEntryFormVisible] = useState(false);
+  const [entryType, setEntryType] = useState("HealthCheck");
 
   useEffect(() => {
     const getFullPatientInfo = async () => {
@@ -26,6 +35,35 @@ const PatientPage = ({ patient }: Props) => {
 
   const handleClick = () => {
     setIsEntryFormVisible(true);
+  };
+
+  const displayEntryForm = () => {
+    switch (entryType) {
+      case "HealthCheck":
+        return (
+          <HealthCheckEntryForm
+            patientId={patientInfo.id}
+            setPatientInfo={setPatientInfo}
+            setIsEntryFormVisible={setIsEntryFormVisible}
+          />
+        );
+      case "OccupationalHealthcare":
+        return (
+          <OccupationalHealthcareEntryForm
+            patientId={patientInfo.id}
+            setPatientInfo={setPatientInfo}
+            setIsEntryFormVisible={setIsEntryFormVisible}
+          />
+        );
+      case "Hospital":
+        return (
+          <HospitalEntryForm
+            patientId={patientInfo.id}
+            setPatientInfo={setPatientInfo}
+            setIsEntryFormVisible={setIsEntryFormVisible}
+          />
+        );
+    }
   };
 
   const headerStyling = {
@@ -57,13 +95,7 @@ const PatientPage = ({ patient }: Props) => {
         occupation: {patient.occupation}
         <br />
       </Typography>
-      {isEntryFormVisible ? (
-        <HealthCheckEntryForm
-          patientId={patientInfo.id}
-          setPatientInfo={setPatientInfo}
-          setIsEntryFormVisible={setIsEntryFormVisible}
-        />
-      ) : null}
+      {isEntryFormVisible ? displayEntryForm() : null}
       <Typography variant="h6" style={headerStyling}>
         entries
       </Typography>
@@ -75,13 +107,33 @@ const PatientPage = ({ patient }: Props) => {
           ))
         : null}
       {isEntryFormVisible ? null : (
-        <Button
-          variant="contained"
-          sx={{ marginTop: "0.5rem" }}
-          onClick={handleClick}
-        >
-          Add New Entry
-        </Button>
+        <>
+          <div>
+            <InputLabel id="type">entry type</InputLabel>
+            <Select
+              labelId="type"
+              label="type"
+              style={{ width: "14rem" }}
+              value={entryType}
+              onChange={(event) => setEntryType(event.target.value)}
+            >
+              <MenuItem value={"HealthCheck"}>HealthCheck</MenuItem>
+              <MenuItem value={"OccupationalHealthcare"}>
+                OccupationalHealthcare
+              </MenuItem>
+              <MenuItem value={"Hospital"}>Hospital</MenuItem>
+            </Select>
+          </div>
+          <div>
+            <Button
+              variant="contained"
+              sx={{ marginTop: "0.5rem" }}
+              onClick={handleClick}
+            >
+              Add New Entry
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );

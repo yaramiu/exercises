@@ -213,6 +213,10 @@ const isDischarge = (discharge: object): discharge is Discharge => {
     return false;
   }
 
+  if (!isDate(discharge.date)) {
+    return false;
+  }
+
   return true;
 };
 

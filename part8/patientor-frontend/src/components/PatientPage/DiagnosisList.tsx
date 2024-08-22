@@ -11,7 +11,7 @@ interface Props {
 const DiagnosisList = ({ entry, diagnoses }: Props) => {
   return (
     <div>
-      {entry.diagnosisCodes ? (
+      {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 ? (
         <ul>
           {entry.diagnosisCodes.map((diagnosisCode) => (
             <li key={uuid()}>
