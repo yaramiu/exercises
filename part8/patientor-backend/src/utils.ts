@@ -54,10 +54,7 @@ export const toPatientEntry = (object: unknown): EntryWithoutId => {
           description: parseDescription(description),
           date: parseDate(date),
           specialist: parseSpecialist(specialist),
-          diagnosisCodes:
-            "diagnosisCodes" in object
-              ? parseDiagnosisCodes(object.diagnosisCodes)
-              : undefined,
+          diagnosisCodes: parseDiagnosisCodes(object),
           type: "HealthCheck",
           healthCheckRating: parseHealthCheckRating(healthCheckRating),
         };
@@ -70,10 +67,7 @@ export const toPatientEntry = (object: unknown): EntryWithoutId => {
           description: parseDescription(description),
           date: parseDate(date),
           specialist: parseSpecialist(specialist),
-          diagnosisCodes:
-            "diagnosisCodes" in object
-              ? parseDiagnosisCodes(object.diagnosisCodes)
-              : undefined,
+          diagnosisCodes: parseDiagnosisCodes(object),
           type: "OccupationalHealthcare",
           employerName: parseEmployerName(employerName),
           sickLeave:
@@ -90,10 +84,7 @@ export const toPatientEntry = (object: unknown): EntryWithoutId => {
           description: parseDescription(description),
           date: parseDate(date),
           specialist: parseSpecialist(specialist),
-          diagnosisCodes:
-            "diagnosisCodes" in object
-              ? parseDiagnosisCodes(object.diagnosisCodes)
-              : undefined,
+          diagnosisCodes: parseDiagnosisCodes(object),
           type: "Hospital",
           discharge: parseDischarge(discharge),
         };

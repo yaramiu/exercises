@@ -5,6 +5,7 @@ import { Patient } from "../../types";
 import patientService from "../../services/patients";
 import GenderIcon from "./GenderIcon";
 import Entry from "./Entry";
+import HealthCheckEntryForm from "./HealthCheckEntryForm";
 
 interface Props {
   patient: Patient;
@@ -12,6 +13,7 @@ interface Props {
 
 const PatientPage = ({ patient }: Props) => {
   const [patientInfo, setPatientInfo] = useState<Patient>(patient);
+  const [isEntryFormVisible, setIsEntryFormVisible] = useState(false);
 
   useEffect(() => {
     const getFullPatientInfo = async () => {
@@ -21,6 +23,10 @@ const PatientPage = ({ patient }: Props) => {
 
     getFullPatientInfo();
   }, [patient]);
+
+  const handleClick = () => {
+    setIsEntryFormVisible(true);
+  };
 
   const headerStyling = {
     fontWeight: "bold",
@@ -51,6 +57,13 @@ const PatientPage = ({ patient }: Props) => {
         occupation: {patient.occupation}
         <br />
       </Typography>
+      {isEntryFormVisible ? (
+        <HealthCheckEntryForm
+          patientId={patientInfo.id}
+          setPatientInfo={setPatientInfo}
+          setIsEntryFormVisible={setIsEntryFormVisible}
+        />
+      ) : null}
       <Typography variant="h6" style={headerStyling}>
         entries
       </Typography>
@@ -61,9 +74,15 @@ const PatientPage = ({ patient }: Props) => {
             </div>
           ))
         : null}
-      <Button variant="contained" sx={{ marginTop: "0.5rem" }}>
-        Add New Entry
-      </Button>
+      {isEntryFormVisible ? null : (
+        <Button
+          variant="contained"
+          sx={{ marginTop: "0.5rem" }}
+          onClick={handleClick}
+        >
+          Add New Entry
+        </Button>
+      )}
     </div>
   );
 };
